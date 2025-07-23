@@ -1,5 +1,5 @@
 export const environment = {
-  apiUrl: 'https://api.pakdome.com',
+  apiUrl: 'https://gizi-app-be.vercel.app/api',
   production: true,
   features: {
     enablePushNotifications: true,

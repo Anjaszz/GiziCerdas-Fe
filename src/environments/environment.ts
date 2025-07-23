@@ -6,7 +6,7 @@
 // environment.ts
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
+  apiUrl: 'https://gizi-app-be.vercel.app/api',
   features: {
     enablePushNotifications: true,
     enableOfflineMode: false,
