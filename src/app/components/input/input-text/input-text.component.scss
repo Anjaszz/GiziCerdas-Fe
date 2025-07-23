@@ -1,0 +1,62 @@
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+
+.combobox {
+    &_pasive {
+        h1 {
+            color: var(--text-subtle);
+        }
+        span {
+            color: var(--text-subtlest);
+        }
+        ic-check-simple {
+            color: var(--icon-primary);    
+        }
+        p {
+            color: var(--text-subtlest);
+        }
+        
+        &:hover {
+            h1 {
+                color: var(--text-white);
+            }
+            span {
+                color: var(--text-white);
+            }
+            ic-check-simple {
+                color: var(--icon-default);    
+            }
+            p {
+                color: var(--text-white);
+            } 
+        }
+    }
+
+
+
+    &_active {
+        background-color: var(--bold-brand-default);
+
+        h1 {
+            color: var(--text-white);
+        }
+        span {
+            color: var(--text-white);
+        }
+        ic-check-simple {
+            color: var(--icon-default);    
+        }
+        p {
+            color: var(--text-white);
+        } 
+    }
+
+}

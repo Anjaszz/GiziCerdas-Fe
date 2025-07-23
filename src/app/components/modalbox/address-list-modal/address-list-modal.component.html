@@ -1,0 +1,115 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white sm:rounded-2xl rounded-none sm:w-[520px] w-full sm:max-h-[668px]  h-full max-h-full flex flex-col">
+    <!-- Header with close button -->
+    <div class="sm:hidden flex justify-between items-center p-6 ">
+      <div class=" flex  gap-2 items-center">
+        <ic-arrow-left (click)="close()"/>
+        <h2 class="sm:text-xl text-lg font-bold text-text-bolder">{{ modalTitle }}</h2>
+       
+      </div>
+      <div class=" block text-sm text-text-primary font-semibold"  (click)="onAddNew()">
+        + Alamat Baru
+      </div>
+    
+    </div>
+    <div class="flex flex-col gap-4 px-6 pt-6">
+      
+      <button (click)="close()" class="text-icon-subtle hover:text-icon-default sm:block hidden self-end">
+        <close-icon/>
+      </button>
+      <h2 class="sm:text-xl text-lg font-bold text-text-bolder text-center">{{ modalTitle }}</h2>
+     </div>
+
+    <!-- Search input -->
+    <div class="px-6 pt-4">
+      <app-input-text
+        [(ngModel)]="searchQuery"
+        [bgWhite]="true"
+        placeholder="Cari Nama / No.HP / Alamat"
+        mode="text">
+      </app-input-text>
+    </div>
+
+    <!-- Address list -->
+    <div class="flex-1 overflow-y-auto px-6 py-4">
+      <!-- Empty state if no addresses of this type -->
+      <div *ngIf="filteredAddresses.length === 0" class="flex flex-col items-center justify-center py-8 text-center">
+        <div class="w-16 h-16 mb-4 text-text-subtler">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <p class="text-text-subtler mb-2">
+          Belum ada alamat {{ addressType === 'pickup' ? 'pickup' : 'penerima' }} tersimpan
+        </p>
+        <p class="text-sm text-text-subtlest">
+          Silakan buat alamat baru untuk melanjutkan
+        </p>
+      </div>
+
+      <!-- List of addresses -->
+      <div class="space-y-3" *ngIf="filteredAddresses.length > 0">
+        <div *ngFor="let address of filteredAddresses" 
+             class="border rounded-lg p-3 hover:border-line-brand cursor-pointer"
+             [class.border-line-brand]="selectedAddress === address"
+             [class.bg-tint-brand-default]="selectedAddress === address"
+             [class.border-line-default]="selectedAddress !== address"
+             (click)="selectAddress(address)">
+          <div class="flex justify-between items-start">
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-text-bolder text-sm">{{ address.name }}</span>
+                <span class="text-xs text-text-subtle">{{ address.phone }}</span>
+              </div>
+              <span class="text-xs text-text-subtle">{{ address.address }}</span>
+              <span class="text-xs font-semibold text-text-bolder">{{ formatDomicile(address.domicile) }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-text-subtle font-semibold ">Pilih</span>
+              <app-checkbox
+                [checked]="selectedAddress === address"
+                (change)="selectAddress(address)"
+                [size]="'md'"
+                variant="default">
+              </app-checkbox>
+            </div>
+          </div>
+          <div class="flex gap-6 pt-2">
+            <button 
+              class="text-text-primary text-xs font-semibold flex gap-2"
+              (click)="onEditClick(address, $event)">
+              Ubah Detail
+              <edit-icon/>
+            </button>
+            
+            <!-- Checkbox untuk menjadikan alamat utama (diperbarui dengan stopPropagation) -->
+            <div *ngIf="addressType === 'pickup'" (click)="$event.stopPropagation()">
+              <div class="flex items-center gap-2">
+                <app-checkbox
+                  [checked]="!!address.isPrimary"
+                  (change)="onPrimaryCheckboxChange(address, $event)"
+                  [size]="'sm'"
+                  title="Utama"
+                  variant="default">
+                </app-checkbox>
+              
+              </div>
+            </div>
+           
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom action -->
+    <div class="border border-line-default rounded-lg p-2 mb-6 mx-6 sm:block hidden">
+      <app-pakdome-button
+        theme="general-outline"
+        size="md"
+        class="w-full"
+        (click)="onAddNew()">
+        Buat Alamat {{ addressType === 'pickup' ? 'Pickup' : 'Penerima' }} Baru
+      </app-pakdome-button>
+    </div>
+  </div>
+</div>

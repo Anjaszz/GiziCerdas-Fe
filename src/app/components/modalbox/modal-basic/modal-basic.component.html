@@ -1,0 +1,45 @@
+
+<p-dialog
+  appendTo="body"
+  [visible]="visibleModal"
+  [modal]="true"
+  [dismissableMask]="false"
+  (onHide)="cancel.emit()">
+  <ng-template pTemplate="headless">
+    <div
+      [ngClass]="styleWidth"
+      class="flex flex-col gap-5 bg-elevation-surface justify-center p-[2.625rem] rounded-2xl "
+    >
+      <div class="flex flex-col gap-1.5">
+        <h1
+          class="font-inter text-center font-bold text-base text-text-default"
+        >
+          {{ header }}
+        </h1>
+        <p
+          class="font-inter font-normal text-center text-sm text-text-subtler"
+        >
+          {{ content }}
+        </p>
+        <ng-content select="[optional]" />
+      </div>
+      <div [ngClass]="['gap-2 mx-4', computedClasses]">
+        <app-button
+          theme="tint-purple"
+          [fullWidth]="true"
+          (clicked)="cancel.emit()"
+        >
+          {{ labelCancel }}
+        </app-button>
+        <app-button2
+          theme="solid-purple"
+          [fullWidth]="true"
+          (clicked)="submit.emit()"
+          [loading]="loading"
+        >
+          {{ labelSubmit }}
+        </app-button2>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

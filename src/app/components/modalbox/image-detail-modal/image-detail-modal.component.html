@@ -1,0 +1,77 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+  <div class="relative bg-surface-default rounded-lg max-w-[60vw] max-h-[80vh] w-auto h-auto">
+  
+    <div class="bg-surface-sunken py-3 px-4 flex justify-between rounded-t-lg text-text-bolder border-b border-line-default">
+      <p class="text-lg font-bold">Lampiran</p>
+      <button 
+      (click)="closeModal()" 
+      class="hover:bg-surface-default p-1 rounded-full"
+    >
+      <close-icon></close-icon>
+    </button>
+    </div>
+   
+
+    <!-- Main Image Display -->
+    <div class="flex flex-col items-center p-3 relative">
+      <img 
+      [src]="images.length > currentIndex ? images[currentIndex].url : ''"
+        alt="Enlarged image" 
+        class="max-h-[65vh] max-w-[50vw] w-auto object-contain"
+      >
+    
+      <!-- Navigation Controls (only if more than one image) -->
+      <div *ngIf="images.length > 1" class="flex justify-between w-full absolute top-1/2 transform -translate-y-1/2">
+        <button 
+          (click)="prevImage()" 
+          class="text-gray-600 bg-white bg-opacity-70 p-2 rounded-full ml-2 hover:bg-opacity-100"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button 
+          (click)="nextImage()" 
+          class="text-gray-600 bg-white bg-opacity-70 p-2 rounded-full mr-2 hover:bg-opacity-100"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Thumbnails -->
+    <div *ngIf="images.length > 1" class="flex justify-center gap-2 mt-4 overflow-x-auto px-2 py-3 bg-surface-sunken border-t border-line-default rounded-b-lg">
+      <div 
+        *ngFor="let image of images; let i = index" 
+        [class.border-2]="i === currentIndex"
+        [class.border-blue-500]="i === currentIndex"
+        class="w-12 h-12 cursor-pointer rounded overflow-hidden"
+        (click)="selectImage(i)"
+      >
+        <img [src]="image.url" class="w-full h-full object-cover" alt="Thumbnail">
+      </div>
+    </div>
+  </div>
+</div>

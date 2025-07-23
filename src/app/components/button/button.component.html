@@ -1,0 +1,30 @@
+<!-- button.component.html -->
+@if (href) {
+  <a
+    [routerLink]="href"
+    [target]="target"
+    [class]="computedClasses"
+    [attr.aria-label]="ariaLabel"
+    [title]="tooltip">
+    <ng-content select="[left-icon]"></ng-content>
+    <span class="contents">
+      <ng-content></ng-content>
+    </span>
+    <ng-content select="[right-icon]"></ng-content>
+  </a>
+} @else {
+  <button
+    [type]="type"
+    [class]="computedClasses"
+    [disabled]="isDisabled"
+    [attr.aria-label]="ariaLabel"
+    [title]="tooltip"
+    [name]="name"
+    [value]="value">
+    <ng-content select="[left-icon]"></ng-content>
+    <span class="contents">
+      <ng-content></ng-content>
+    </span>
+    <ng-content select="[right-icon]"></ng-content>
+  </button>
+}

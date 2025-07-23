@@ -1,0 +1,39 @@
+<label
+   #InputCheckbox
+   class="flex items-center gap-2 border border-line-default rounded-md p-2 cursor-pointer group transition-all hover:brightness-90"
+   [ngClass]="[styleClass, loading ? 'opacity-50 cursor-not-allowed' : '']"
+>
+   <span
+      class="flex items-center justify-center h-4 w-4 rounded-md border border-line-default shrink-0 group-[.focus]:outline group-[.focus]:outline-1 group-[.focus]:outline-bg-tint-brand relative"
+      [ngClass]="{
+         'bg-text-primary border-line-brand': !loading && value,
+         checkboxStyleClass
+      }"
+   >
+      <ng-container *ngIf="!loading">
+         <ic-check-simple class="inline-block h-3 w-3 text-white" />
+      </ng-container>
+      <p-progressSpinner
+         *ngIf="loading"
+         [style]="{width: '12px', height: '12px'}"
+         styleClass="absolute inset-0"
+         strokeWidth="6"
+      ></p-progressSpinner>
+   </span>
+   <span
+      class="text-xs font-bold text-text-subtle leading-3"
+      [ngClass]="labelStyleClass"
+   >
+      {{ label }}
+   </span>
+   <input
+      #Checkbox
+      type="checkbox"
+      class="absolute hidden w-full h-full opacity-0 cursor-pointer"
+      [checked]="value"
+      [disabled]="loading || disabled"
+      (change)="toggleValue()"
+      (focus)="InputCheckbox.classList.add('focus')"
+      (blur)="InputCheckbox.classList.remove('focus')"
+   />
+</label>

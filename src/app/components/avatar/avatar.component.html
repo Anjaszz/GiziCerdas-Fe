@@ -1,0 +1,81 @@
+<!-- avatar.component.html -->
+<div class="flex flex-col items-start ">
+  <div class="flex items-center gap-3">
+    <!-- Avatar Container -->
+    <div class="relative">
+      <div 
+        [class]="containerClasses"
+        (click)="onClick($event)"
+        [style.width]="sizeMap[size]"
+        [style.height]="sizeMap[size]">
+        
+        <!-- Image Avatar -->
+        <img 
+          *ngIf="imageUrl && !hasImageError"
+          [src]="imageUrl"
+          [alt]="name || 'user avatar'"
+          (error)="handleImageError()"
+          class="w-full h-full object-cover"
+          [class.rounded-full]="variant === 'rounded'"
+          [class.rounded-lg]="variant === 'square'"
+        />
+        
+        <!-- Initials Avatar -->
+        <div 
+          *ngIf="shouldShowInitials"
+          class="w-full h-full flex items-center justify-center text-text-bolder text-sm font-semibold"
+          [class]="themeColorMap[theme]"
+          [class.rounded-full]="variant === 'rounded'"
+          [class.rounded-lg]="variant === 'square'"
+          [style.font-size]="fontSizeMap[size]">
+          {{ getInitials() }}
+        </div>
+
+        <!-- Default User Icon -->
+        <div 
+          *ngIf="shouldShowIcon"
+          class="w-full h-full flex items-center justify-center bg-surface-sunken overflow-hidden"
+          [class.rounded-full]="variant === 'rounded'"
+          [class.rounded-lg]="variant === 'square'">
+          <app-user-icon [size]="iconSizeMap[size]"></app-user-icon>
+        </div>
+      </div>
+
+      <!-- Status Indicator -->
+      <div 
+        *ngIf="showStatus"
+        [class]="statusClasses"
+        [class]="statusClasses + ' ' + statusColorMap[status || 'offline']">
+      </div>
+    </div>
+
+    <!-- Name and Description (to the right of avatar) -->
+    <div class="flex flex-col gap-1" *ngIf="showInfo">
+      <!-- Status Badge -->
+      <div *ngIf="statusBadge" class="mt-1">
+        <span [class]="getStatusBadgeClasses()">{{ statusBadge }}</span>
+      </div>
+      <span *ngIf="name" class="text-sm font-semibold text-text-subtle truncate">{{ name || 'Unknown User' }}</span>
+      <!-- User Name -->
+     <div *ngIf="username" class="flex gap-1 items-center ">
+      <span class="text-sm font-semibold text-text-subtle truncate">{{ username || 'Unknown User' }}</span>
+      <ic-copy-doc class="cursor-pointer" (click)="copyname(username || '', $event)"/>
+     </div>
+      
+      <!-- Standard description -->
+      <span *ngIf="description && !statusBadge" class="text-xs text-text-subtler lg:max-w-md max-w-[300px] truncate">{{ description }}</span>
+    </div>
+  </div>
+  
+  <!-- Brand Name (New - below the avatar) -->
+  <div class="flex flex-col max-w-56 " *ngIf="showInfo && brandname">
+    <span class="text-sm leading-4 font-semibold text-text-subtler ">{{ brandname }}</span>
+  </div>
+</div>
+<div *ngIf="showCopyNotification" 
+class="fixed sm:top-24 top-16 left-1/2 transform -translate-x-1/2 bg-green-600 text-white py-2 sm:px-4 px-2 rounded-lg shadow-lg sm:w-[350px] w-[300px] z-50 flex items-center gap-1 transition-all duration-300 animate-fade-in">
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+ <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+</svg>
+<span class="text-xs sm:text-sm">Username {{ name }} berhasil disalin!</span>
+</div>

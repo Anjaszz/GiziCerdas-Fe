@@ -1,0 +1,138 @@
+<div class="relative inline-block overflow-visible">
+  <div (click)="toggleDropdown($event)">
+    <ng-content select="[dropdownTrigger]"></ng-content>
+  </div>
+
+  @if (isOpen) {
+    <div 
+      class="absolute z-[100] mt-2 overflow-visible dropdown-menu"
+      [class.top-full]="true"
+      [class.left-0]="variant === 'left'"
+      [class.right-0]="variant === 'right'"
+    >
+      <div class="bg-surface-default rounded-lg shadow-lg min-w-[300px] overflow-visible border-[1px]">
+        @if (showHeader) {
+         <div class="px-3 py-2 border-b">
+          <app-avatar
+  name="{{name}}"
+  description="{{role}}"
+  [imageUrl]="imageUrl"    
+  size="md">
+</app-avatar>
+         </div>
+        }
+        
+        <ul class="py-2 relative">
+          @for (item of items; track item.label) {
+            <li 
+              class="relative px-4 py-2 flex items-center gap-2 font-medium text-sm text-text-subtle hover:bg-surface-sunken cursor-pointer transition-colors"
+              [class.opacity-50]="item.disabled"
+              [class.cursor-not-allowed]="item.disabled"
+              [class.has-submenu]="item.subItems && item.subItems.length > 0"
+              (mouseenter)="onItemHover(item)"
+              (mouseleave)="onItemLeave(item)"
+              (click)="handleItemClick(item)"
+            >
+              @if (item.icon) {
+                <app-icon [icon]="item.icon" class="w-4 h-4 text-text-subtler"/>
+              }
+              <span class="flex-grow">{{ item.label }}</span>
+              @if (item.shortcut) {
+                <span class="text-xs text-text-subtlest">{{ item.shortcut }}</span>
+              }
+
+              @if (item.subItems && item.showSubmenu) {
+                <div 
+                  class="absolute z-[200] top-0 bg-surface-default rounded-lg shadow-lg w-full py-1 border-[1px] submenu"
+                  [ngClass]="{
+                    'left-full ml-0.5': (item.submenuPosition || defaultSubmenuPosition) === 'right',
+                    'right-full mr-0.5': (item.submenuPosition || defaultSubmenuPosition) === 'left'
+                  }"
+                  [ngStyle]="{
+                    'transform': (item.submenuPosition || defaultSubmenuPosition) === 'right' ? 'translateX(1px)' : 'translateX(-1px)'
+                  }"
+                >
+                @for (subItem of item.subItems; track subItem.label) {
+                  <div 
+                    class="px-4 py-2 flex items-center gap-3 font-medium text-sm hover:bg-surface-sunken cursor-pointer"  
+                    (click)="handleSubItemClick($event, subItem, item)"
+                  >
+                    <app-radio-simple
+                      [checked]="subItem.checked || false" 
+                      [value]="subItem.value"
+                      [disabled]="subItem.disabled || false"
+                      size="sm"
+                      variant="no-desc"
+                    />
+                    @if (subItem.imageUrl) {
+                      <img 
+                        [src]="subItem.imageUrl" 
+                        class="w-16 h-12 object-contain"
+                        alt="{{ subItem.label }}"
+                      />
+                    } @else if (subItem.icon) {
+                      <app-icon [icon]="subItem.icon" class="w-4 h-4 text-text-subtler"/>
+                    }
+                    <span>{{ subItem.label }}</span>
+                  </div>
+                }
+                </div>
+              }
+            </li>
+            @if (item.hasDivider) {
+              <li class="h-px bg-gray-100 my-2"></li>
+            }
+          }
+        </ul>
+      </div>
+    </div>
+  }
+</div>
+
+<style>
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes submenuFadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(1px);
+    }
+  }
+
+  @keyframes submenuFadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-1px);
+    }
+  }
+
+  .dropdown-menu {
+    animation: dropdownFadeIn 150ms ease-out forwards;
+  }
+
+  .submenu {
+    &.left-full {
+      animation: submenuFadeInLeft 150ms ease-out forwards;
+    }
+    &.right-full {
+      animation: submenuFadeInRight 150ms ease-out forwards;
+    }
+  }
+</style>

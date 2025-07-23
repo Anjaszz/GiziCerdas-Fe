@@ -1,0 +1,119 @@
+<div 
+class="inline-flex items-start justify-between p-4 transition-all w-full cursor-pointer"
+[ngClass]="{
+  'border-2 rounded-md bg-surface-default': variant === 'default' || variant === 'icon-left',
+  'border-bold-brand-default': (variant === 'default' || variant === 'icon-left') && checked,
+  'border-line-default': (variant === 'default' || variant === 'icon-left') && !checked,
+  'border-b border-line-default': variant === 'bottom-border' ||  variant === 'label-only',
+  'opacity-50': disabled
+}"
+(click)="onContainerClick()">
+
+<!-- Icon-left variant has a different layout -->
+@if (variant === 'icon-left') {
+  <div class="flex items-center w-full">
+    <!-- Icon on the left -->
+    <div class="flex-shrink-0 mr-3">
+      <!-- Use dynamic component for the icon -->
+      <ng-container *ngComponentOutlet="getIconComponent(); injector: getIconInjector()"></ng-container>
+    </div>
+
+    <!-- Text content - keep original styling -->
+    <div class="flex-grow">
+      @if (label) {
+        <label 
+          class="text-text-bolder text-sm font-medium" 
+          [attr.for]="radioId"
+          [ngClass]="[radioSizeClass.label]">
+          {{ label }}
+        </label>
+      }
+      @if (desc) {
+        <p 
+          class="text-text-subtler text-xs" 
+          [attr.for]="radioId">
+          {{ desc }}
+        </p>
+      }
+    </div>
+
+    <!-- Radio button aligned vertically center -->
+    <label 
+      class="flex-shrink-0 flex items-center cursor-pointer self-center ml-3" 
+      [attr.for]="radioId">
+      <input
+        [id]="radioId"
+        type="radio"
+        [name]="name"
+        [value]="value"
+        [checked]="checked"
+        (change)="onInputChange($event)"
+        [disabled]="disabled"
+        class="peer cursor-pointer appearance-none rounded-full border transition-all focus:ring-2 focus:ring-bold-brand-default focus:ring-offset-2"
+        [ngClass]="[
+          radioSizeClass.radio, 
+          radioThemeClass.unchecked, 
+          radioThemeClass.checked,
+          styleClass
+        ]"
+      />
+      <span 
+        class="absolute bg-surface-default rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        [ngClass]="[radioSizeClass.dot]">
+      </span>
+    </label>
+  </div>
+} @else {
+  <!-- Original layout for other variants -->
+  <div class="flex-col ml-2 items-start">
+    @if (label) {
+      <label 
+        class="text-text-bolder text-sm cursor-pointer font-medium" 
+        [attr.for]="radioId"
+        [ngClass]="[radioSizeClass.label]">
+        {{ label }}
+      </label>
+    }
+    @if ((variant === 'default' || variant === 'bottom-border') && desc) {
+      <p 
+        class="text-text-subtler text-sm" 
+        [attr.for]="radioId">
+        {{ desc }}
+      </p>
+    }
+    @if (variant === 'default' && label2) {
+      <p 
+        class="text-text-bolder text-sm cursor-pointer font-medium mt-6" 
+        [attr.for]="radioId"
+        [ngClass]="[radioSizeClass.label]">
+        {{ label2 }}
+      </p>
+    }
+  </div>
+
+  <label 
+    class="relative flex items-center cursor-pointer" 
+    [attr.for]="radioId">
+    <input
+      [id]="radioId"
+      type="radio"
+      [name]="name"
+      [value]="value"
+      [checked]="checked"
+      (change)="onInputChange($event)"
+      [disabled]="disabled"
+      class="peer cursor-pointer appearance-none rounded-full border transition-all focus:ring-2 focus:ring-bold-brand-default focus:ring-offset-2"
+      [ngClass]="[
+        radioSizeClass.radio, 
+        radioThemeClass.unchecked, 
+        radioThemeClass.checked,
+        styleClass
+      ]"
+    />
+    <span 
+      class="absolute bg-surface-default rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      [ngClass]="[radioSizeClass.dot]">
+    </span>
+  </label>
+}
+</div>

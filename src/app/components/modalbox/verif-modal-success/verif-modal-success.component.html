@@ -1,0 +1,49 @@
+<div class="fixed inset-0 bg-shadow-2 flex items-center justify-center sm:p-4 p-0">
+  <div class="bg-white sm:rounded-2xl w-full sm:max-w-[420px] min-h-[100dvh] sm:min-h-fit relative sm:border sm:border-line-default flex flex-col items-center justify-center">
+    <!-- Close button - hanya tampil di desktop -->
+    <div class="w-full px-5 pt-5 sm:flex justify-end hidden">
+      <button class="text-icon-subtler" (click)="onClose()">
+        <close-icon color="currentcolor" />
+      </button>
+    </div>
+
+    <!-- Modal content -->
+    <div class="px-8 pb-8 flex flex-col gap-8">
+      <div class="flex items-center justify-center">
+          @defer (on viewport) {
+            <img src="assets/modal-success.svg" alt="success verification">
+          } @placeholder (minimum 0.5s) {
+            <p-skeleton shape="circle" size="9.5rem" />
+          }
+       
+      </div>
+      <div class="flex flex-col gap-2 text-center">
+        <h1 class="text-xl font-bold text-text-bolder">
+          {{ getTitle() }}
+        </h1>
+        
+        <p class="text-sm text-text-subtle">
+          <ng-container *ngIf="!isEdit">{{ getMessage() }}</ng-container>
+          <ng-container *ngIf="isEdit">
+            Cek Daftar {{ getMethodName() }} 
+            <span class="text-text-primary">{{ getVerificationDestination() }}</span> & <br>
+            klik link verifikasi dari Pakdome
+            untuk dapat memperbarui {{ type === 'email' ? 'E-mail' : 'Nomor HP' }} ke   <span class="text-text-secondary">{{ targetValue }}</span>
+          </ng-container>
+        </p>
+
+        <div *ngIf="isEdit" class="p-4 bg-tint-yellow-default rounded-md text-start">
+          <p class="text-sm text-text-secondary">
+            Selama Belum diverifikasi, kamu masih dapat mengakses akunmu menggunakan E-mail lama
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <app-pakdome-button (click)="onSubmit()">
+          {{ getButtonText() }}
+        </app-pakdome-button>
+      </div>
+    </div>
+  </div>
+</div>

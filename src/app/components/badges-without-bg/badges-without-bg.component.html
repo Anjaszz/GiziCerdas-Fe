@@ -1,0 +1,13 @@
+@if (isShow) {
+   <div [ngClass]="[getBadgeClasses]">
+      <!-- <div [ngClass]="[getDotClasses]"></div> -->
+      <ng-content select="[left-icon]" class="!text-solid-purple-darker"></ng-content>
+      <ng-content></ng-content>
+      <ng-content select="[right-icon]"></ng-content>
+      @if (hasShowButton) {
+         <button type="button" (click)="isShow = !isShow" class="cursor-pointer flex items-center ">
+            <ic-circle-simple-close [ngClass]="[getCloseButtonClasses]"/>
+         </button>
+      }
+   </div>
+}

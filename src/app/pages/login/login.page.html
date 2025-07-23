@@ -1,0 +1,177 @@
+<!-- login.page.html -->
+<ion-header class="ion-no-border">
+  <div class="relative bg-gradient-to-br from-green-500 to-green-600 py-8">
+    <div class="text-center px-6"> 
+      <!-- App Logo/Icon -->
+      <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mx-auto flex items-center justify-center mb-4 shadow-xl">
+        <ion-icon name="home-outline" class="text-white text-4xl"></ion-icon>
+      </div>
+      <h1 class="text-2xl font-bold text-white mb-2">GiziCerdas</h1>
+      <p class="text-green-100 text-sm">Pantau tumbuh kembang si kecil dengan mudah</p>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <!-- Main Login Card -->
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Welcome Section -->
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Selamat Datang Kembali</h2>
+        <p class="text-gray-500 text-sm">Masuk ke akun Anda untuk melanjutkan</p>
+      </div>
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Email Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="mail-outline" class="text-green-500 mr-2"></ion-icon>
+            Email
+          </label>
+          <div class="relative">
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="Masukkan email Anda"
+              class="w-full px-4 py-3 border-2 rounded-xl focus:border-green-500 focus:outline-none transition-colors duration-200"
+              [class.border-red-300]="getFieldError('email')"
+              [class.border-gray-200]="!getFieldError('email')">
+          </div>
+          <p *ngIf="getFieldError('email')" class="text-red-500 text-xs mt-1">
+            {{ getFieldError('email') }}
+          </p>
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="lock-closed-outline" class="text-green-500 mr-2"></ion-icon>
+            Password
+          </label>
+          <div class="relative">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Masukkan password Anda"
+              class="w-full px-4 py-3 pr-12 border-2 rounded-xl focus:border-green-500 focus:outline-none transition-colors duration-200"
+              [class.border-red-300]="getFieldError('password')"
+              [class.border-gray-200]="!getFieldError('password')">
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" class="text-xl"></ion-icon>
+            </button>
+          </div>
+          <p *ngIf="getFieldError('password')" class="text-red-500 text-xs mt-1">
+            {{ getFieldError('password') }}
+          </p>
+        </div>
+
+        <!-- Forgot Password Link -->
+        <div class="text-right">
+          <button
+            type="button"
+            (click)="goToForgotPassword()"
+            class="text-green-600 text-sm font-medium hover:text-green-700 underline">
+            Lupa Password?
+          </button>
+        </div>
+
+        <!-- Login Button -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+          <span *ngIf="!isLoading">Masuk</span>
+          <span *ngIf="isLoading" class="flex items-center justify-center">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+            Memproses...
+          </span>
+        </button>
+
+        <!-- Demo Login Button (for testing) -->
+        <button
+          type="button"
+          (click)="loginAsDemo()"
+          class="w-full bg-gray-100 text-gray-700 font-medium py-3 rounded-xl border-2 border-gray-200 hover:bg-gray-200 transition-colors duration-200">
+          <span class="flex items-center justify-center">
+            <ion-icon name="person-outline" class="mr-2"></ion-icon>
+            Login Demo
+          </span>
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="flex items-center my-8">
+        <div class="flex-1 border-t border-gray-200"></div>
+        <span class="px-4 text-gray-500 text-sm">atau</span>
+        <div class="flex-1 border-t border-gray-200"></div>
+      </div>
+
+      <!-- Register Section -->
+      <div class="text-center space-y-4">
+        <p class="text-gray-600 text-sm">Belum punya akun?</p>
+        <button
+          type="button"
+          (click)="goToRegister()"
+          class="w-full bg-tint-green-subtle text-text-success font-semibold py-4 rounded-xl border-2 border-green-500 hover:bg-green-50 transition-colors duration-200">
+          <span class="flex items-center justify-center">
+            <ion-icon name="person-add-outline" class="mr-2"></ion-icon>
+            Daftar Akun Baru
+          </span>
+        </button>
+      </div>
+
+      <!-- Features Highlight -->
+      <div class="mt-12 pb-8">
+        <h3 class="text-center text-gray-700 font-semibold mb-6">Kenapa Memilih GiziCerdas?</h3>
+        <div class="grid grid-cols-1 gap-4">
+          <div class="flex items-center space-x-3 p-4 bg-green-50 rounded-xl border border-green-100">
+            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-lg">📊</span>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-800">Pantau Pertumbuhan</h4>
+              <p class="text-sm text-gray-600">Lacak tinggi, berat, dan perkembangan anak</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center space-x-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-lg">🍎</span>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-800">Kalkulator Gizi</h4>
+              <p class="text-sm text-gray-600">Hitung kebutuhan nutrisi harian anak</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center space-x-3 p-4 bg-purple-50 rounded-xl border border-purple-100">
+            <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-lg">📚</span>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-800">Edukasi Gizi</h4>
+              <p class="text-sm text-gray-600">Artikel dan tips nutrisi untuk anak</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

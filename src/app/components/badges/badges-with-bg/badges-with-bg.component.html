@@ -1,0 +1,6 @@
+<div [class]="getBadgeClasses()">
+  <ng-content></ng-content>
+  <div (click)="onClose($event)" class="cursor-pointer">
+    <ng-content select="[select='right-icon']"></ng-content>
+  </div>
+</div>

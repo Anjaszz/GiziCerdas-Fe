@@ -1,0 +1,142 @@
+<!-- alert.component.html -->
+<div *ngFor="let position of positions" [class]="getPositionClasses(position)">
+  <div *ngFor="let toast of getAlertsByPosition(position) | async"
+       [@toastAnimation]="{ value: 'visible-' + position, params: { position: position }}"
+       [class]="getAlertClasses(toast)"
+       (mouseenter)="onAlertMouseEnter(toast.id)"
+  (mouseleave)="onAlertMouseLeave(toast.id)">
+
+    <div *ngIf="shouldShowIcon(toast)" [class]="getHeadingColor(toast)">
+      <alert-icon color="currentColor"/>
+    </div>
+
+    <!-- Content Section -->
+    <div class="flex flex-col gap-1.5 text-sm ">
+      <!-- Secondary Variant -->
+      <ng-container *ngIf="toast.variant === 'simple'">
+        <h4 class="font-semibold lg:text-base text-sm leading-5" [class]="getHeadingColor(toast)">
+          {{ toast.title }}
+        </h4>
+        <div [class]="getContentColor(toast)">
+          {{ toast.message }}
+        </div>
+      </ng-container>
+
+      <!-- Brand Variant -->
+      <ng-container *ngIf="toast.variant === 'withlist'">
+        <h4 class="font-semibold lg:text-base text-sm leading-5" [class]="getHeadingColor(toast)">
+          {{ toast.title }}
+        </h4>
+        <ul class="list-disc list-inside" [class]="getContentColor(toast)">
+          <li *ngFor="let item of getAlertItems(toast)">{{ item }}</li>
+        </ul>
+      </ng-container>
+
+     
+      <ng-container *ngIf="isActionAlert(toast)">
+        <h4 class="font-semibold lg:text-base text-sm leading-5" [class]="getHeadingColor(toast)">
+          {{ toast.title }}
+        </h4>
+        <div [class]="getContentColor(toast)">
+          {{ toast.message }}
+        </div>
+        <div class="mt-2">
+          <div class="flex flex-row gap-3">
+            <a 
+              *ngIf="toast.statusUrl" 
+              [href]="toast.statusUrl" 
+              [class]="getActionColor(toast)"
+            >
+              View Status
+            </a>
+            <ng-template #viewStatusButton>
+              <button 
+              [class]="getActionColor(toast)"
+                (click)="onViewStatus(toast)"
+              >
+                View Status
+              </button>
+            </ng-template>
+            <button 
+            [class]="getActionColor(toast)"
+              (click)="dismiss(toast.id)"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="isDetailStyleAlert(toast)">
+        <div class="flex flex-row items-center justify-between lg:w-[576px] w-[325px]" [class]="getContentColor(toast)">
+          <div class="flex items-center">
+            <span>{{ toast.message }}</span>
+          </div>
+          
+          <ng-container *ngIf="toast.variant !== 'closeicon'">
+            <div class="flex items-end gap-2">
+              <span class="text-sm font-semibold">{{ toast.detailText }}</span>
+              <app-arrow-right color="currentColor"/>
+            </div>
+          </ng-container>
+          
+          <ng-container *ngIf="toast.variant === 'closeicon'">
+            <button 
+              (click)="dismiss(toast.id)">
+              <close-icon  color="currentColor"></close-icon>
+            </button>
+          </ng-container>
+        </div>
+      </ng-container>
+     
+      <ng-container *ngIf="isCompletedStyleAlert(toast)">
+        <div class="flex flex-col lg:w-[576px] w-[345px] justify-between" [class]="getHeadingColor(toast)">
+          <!-- Header -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <button 
+                (click)="dismiss(toast.id)">
+                <app-x-icon size="20" color="currentColor"/>
+              </button>
+              
+              <!-- Content based on variant -->
+              <ng-container *ngIf="toast.variant === 'completed'">
+                <h4 class="font-semibold text-base leading-5" >
+                  {{ toast.title }}
+                </h4>
+              </ng-container>
+              <ng-container *ngIf="toast.variant === 'completedborder'" >
+                <span [class]="getContentColor(toast)">{{ toast.message }}</span>
+              </ng-container>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold">{{ toast.detailText }}</span>
+              <app-arrow-right color="currentColor"/>
+            </div>
+          </div>
+      
+          <!-- Message for completed variant only -->
+          <ng-container *ngIf="toast.variant === 'completed'" [class]="getContentColor(toast)">
+            <div class="mt-2 ml-8" >
+              {{ toast.message }}
+            </div>
+      
+            <!-- Actions -->
+            <div class="mt-4 ml-8 flex gap-3">
+              <button 
+                [class]="getActionColor(toast)"
+                (click)="onPrimaryAction(toast)">
+                {{ toast.primaryAction }}
+              </button>
+              <button 
+                [class]="getActionColor(toast)"
+                (click)="onSecondaryAction(toast)">
+                {{ toast.secondaryAction }}
+              </button>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+.custom-list {
+    list-style: none;
+    
+  }
+  
+  .custom-list li::before {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    background-color: var(--bold-yellow-default);
+    margin-right: 0.5em;
+    margin-bottom: 0.1em;
+    vertical-align: middle;
+  }

@@ -1,0 +1,196 @@
+<div
+  *ngIf="isMobileView && !isCollapsed"
+  class="fixed inset-0 bg-black bg-opacity-50 z-10"
+  (click)="toggleSidebar()"
+></div>
+
+<div
+  class="flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-20"
+  [class]="
+    isCollapsed
+      ? 'w-20 sm:static '
+      : 'w-60 md:static  sm:fixed sm:top-18 sm:left-0'
+  "
+>
+<div class="relative w-full py-4 text-text-bolder text-sm border-b border-line-default"
+     [ngClass]="{ 'pl-3': !isCollapsed, 'flex justify-center': isCollapsed }">
+     <div class="flex gap-2 items-center cursor-pointer"
+     [ngClass]="{ 'justify-center w-fit': !isCollapsed, 'w-full justify-center': isCollapsed }"
+     [routerLink]="['/dashboard']">
+
+      <ic-arrow-up-right
+        class="-rotate-90 text-icon-subtler"
+        size="20"
+        color="currentcolor"
+      />
+
+      <p [class.hidden]="isCollapsed">Kembali</p>
+
+    </div>
+    <div class="relative">
+        <div (click)="toggleSidebar()"
+             class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-surface-default border border-line-default cursor-pointer rounded-full transition-all duration-300 absolute -right-[13px] -bottom-3"
+             [class.rotate-180]="isCollapsed"
+             (mouseenter)="showTooltip($event, 'toggleSidebar', 'right')"
+             (mouseleave)="hideTooltip('toggleSidebar')">
+          <ic-cheveron-right />
+        </div>
+        
+        <app-tooltip
+          [text]="toggleSidebarTooltipText"
+          [isVisible]="tooltipStates['toggleSidebar'].isVisible"
+          [position]="tooltipPosition"
+          [placement]="'right'"
+        >
+        </app-tooltip>
+      </div>
+  </div>
+
+  <!-- Profile Section -->
+  <div
+    class="flex items-center justify-between flex-col border-b border-gray-200"
+    [class.hidden]="isCollapsed"
+  >
+    <div class="text-text-subtler text-xs w-full font-semibold">
+      <p class="p-3">AKUN</p>
+    </div>
+    <div class="flex flex-col gap-3 w-full">
+      @defer (on viewport) {
+        <app-avatar
+        [name]="profileData?.name || ''"
+          [imageUrl]=""
+          [description]="profileData?.b2c_role?.role_name"
+          fallbackType="icon"
+          [size]="'sm'"
+          [showInfo]="true"
+          class="flex-shrink-0 p-3"
+        ></app-avatar>
+      } @placeholder (minimum 0.5s) {
+       
+        <div class="flex gap-4 items-center my-3">
+          <p-skeleton shape="circle" size="2.5rem" styleClass="ml-2" />
+          
+          <div class="flex flex-col gap-2 flex-1"  *ngIf="!isCollapsed">
+            <p-skeleton height="10px" width="120px"/>
+            <p-skeleton height="8px" width="100px" />
+          </div>
+        </div>
+      }
+      
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="flex py-2 w-full">
+    <ul class="space-y-1 text-text-bolder flex flex-col w-full items-center">
+
+      <li
+        class="py-[2px] flex w-full"
+        [ngClass]="{
+          'justify-center px-0': isCollapsed,
+          'items-center px-3': !isCollapsed
+        }"
+        [routerLink]="['/profile']">
+        <a
+          class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+          routerLinkActive="bg-tint-brand-default"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+          #rla="routerLinkActive"
+          (mouseenter)="isCollapsed && showTooltip($event, 'profile', 'right')"
+          (mouseleave)="isCollapsed && hideTooltip('profile')">
+          <span
+            [ngClass]="{
+              'text-icon-primary': rla.isActive
+            }">
+            <ic-user-circle color="currentcolor" />
+          </span>
+          <span
+            *ngIf="!isCollapsed"
+            class="text-sm transition-all duration-200 text-text-subtle">
+            Profil & visibilitas
+          </span>
+        </a>
+        <app-tooltip *ngIf="isCollapsed"
+                [text]="tooltipStates.profile.text"
+                [isVisible]="tooltipStates.profile.isVisible"
+                [position]="tooltipPosition"
+                [placement]="'right'">
+    </app-tooltip>
+      </li>
+
+      <li
+        class="py-[2px] flex w-full"
+        [ngClass]="{
+          'justify-center px-0': isCollapsed,
+          'items-center px-3': !isCollapsed
+        }"
+        [routerLink]="['/informasi-bisnis']">
+        <a
+          class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+          routerLinkActive="bg-tint-brand-default"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+          #rlaRekening="routerLinkActive"
+          (mouseenter)="isCollapsed && showTooltip($event, 'bisnis', 'right')"
+          (mouseleave)="isCollapsed && hideTooltip('bisnis')">
+          <span
+            [ngClass]="{
+              'text-icon-primary': rlaRekening.isActive
+            }">
+            <ic-office color="currentcolor" />
+          </span>
+          <span
+            *ngIf="!isCollapsed"
+            class="text-sm transition-all duration-200 text-text-subtle">
+           Informasi Bisnis
+          </span>
+        </a>
+        <app-tooltip *ngIf="isCollapsed"
+        [text]="tooltipStates.bisnis.text"
+        [isVisible]="tooltipStates.bisnis.isVisible"
+        [position]="tooltipPosition"
+        [placement]="'right'">
+</app-tooltip>
+      </li>
+
+      <li
+        class="py-[2px] flex w-full"
+        [ngClass]="{
+          'justify-center px-0': isCollapsed,
+          'items-center px-3': !isCollapsed
+        }"
+        [routerLink]="['/daftar-alamat']">
+        <a
+          class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+          routerLinkActive="bg-tint-brand-default"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+          #rlaAlamat="routerLinkActive"
+          (mouseenter)="isCollapsed && showTooltip($event, 'alamat', 'right')"
+          (mouseleave)="isCollapsed && hideTooltip('alamat')">
+          <span
+            [ngClass]="{
+              'text-icon-primary': rlaAlamat.isActive
+            }">
+            <ic-book-open color="currentcolor" />
+          </span>
+          <span
+            *ngIf="!isCollapsed"
+            class="text-sm transition-all duration-200 text-text-subtle">
+            Daftar Alamat
+          </span>
+        </a>
+        <app-tooltip *ngIf="isCollapsed"
+                [text]="tooltipStates.alamat.text"
+                [isVisible]="tooltipStates.alamat.isVisible"
+                [position]="tooltipPosition"
+                [placement]="'right'">
+    </app-tooltip>
+      </li>
+
+    </ul>
+  </nav>
+
+
+</div>

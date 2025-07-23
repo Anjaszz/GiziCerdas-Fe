@@ -1,0 +1,321 @@
+<!-- pages/children/child-detail/child-detail.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-purple-500 to-indigo-600 pt-12 pb-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 mb-4">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Detail Anak</h1>
+          <p class="text-purple-100 text-sm">Informasi lengkap</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button (click)="refreshData()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="refresh-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <button (click)="goToEditChild()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="create-outline" class="text-white text-xl"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Child Profile Card -->
+    <div class="mx-6" *ngIf="child">
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+        <div class="flex items-center space-x-4">
+          <!-- Profile Image -->
+          <div class="relative">
+            <div *ngIf="child.profileImage; else defaultAvatar" 
+                 class="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              <img [src]="child.profileImage" [alt]="child.name" class="w-full h-full object-cover">
+            </div>
+            <ng-template #defaultAvatar>
+              <div class="w-20 h-20 rounded-full flex items-center justify-center border-4 border-white shadow-lg"
+                   [ngClass]="child.gender === 'male' ? 'bg-blue-500' : 'bg-pink-500'">
+                <span class="text-white font-bold text-2xl">{{ getInitials() }}</span>
+              </div>
+            </ng-template>
+            
+            <!-- Gender Badge -->
+            <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
+              <ion-icon [name]="getGenderIcon()" [ngClass]="getGenderColor()"></ion-icon>
+            </div>
+          </div>
+
+          <!-- Child Info -->
+          <div class="flex-1">
+            <div class="flex items-center space-x-2 mb-1">
+              <h2 class="text-white font-bold text-xl">{{ child.name }}</h2>
+              <span *ngIf="isSelectedChild()" class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                Aktif
+              </span>
+            </div>
+            <p class="text-purple-100 text-sm mb-2">{{ formatAge() }}</p>
+            <div class="flex items-center space-x-4 text-purple-100 text-xs">
+              <span>
+                <ion-icon name="calendar-outline" class="mr-1"></ion-icon>
+                {{ formatDate(child.birthDate) }}
+              </span>
+              <span>
+                <ion-icon [name]="getGenderIcon()" class="mr-1"></ion-icon>
+                {{ getGenderText() }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Age & Birthday Info -->
+      <div class="mb-8" *ngIf="child">
+        <h3 class="font-semibold text-gray-800 mb-4">Informasi Usia</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 text-center">
+            <ion-icon name="cake-outline" class="text-blue-600 text-2xl mb-2"></ion-icon>
+            <p class="text-blue-600 text-sm font-medium">Usia Saat Ini</p>
+            <p class="text-blue-800 text-lg font-bold">{{ formatAge() }}</p>
+            <p class="text-blue-500 text-xs">{{ ageDetails.totalMonths }} bulan</p>
+          </div>
+          
+          <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4 text-center">
+            <ion-icon name="calendar-outline" class="text-purple-600 text-2xl mb-2"></ion-icon>
+            <p class="text-purple-600 text-sm font-medium">Ulang Tahun</p>
+            <p class="text-purple-800 text-lg font-bold">{{ ageDetails.nextBirthday }}</p>
+            <p class="text-purple-500 text-xs">{{ formatDate(child.birthDate) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Growth Info -->
+      <div class="mb-8" *ngIf="quickStats.latestGrowth">
+        <h3 class="font-semibold text-gray-800 mb-4">Pertumbuhan Terkini</h3>
+        <div class="bg-white border border-gray-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+              <ion-icon name="scale-outline" class="text-green-600"></ion-icon>
+              <span class="font-medium text-gray-800">Data Terakhir</span>
+            </div>
+            <span class="text-gray-500 text-sm">
+              {{ formatDate(quickStats.latestGrowth.recordDate) }}
+            </span>
+          </div>
+          
+          <div class="grid grid-cols-4 gap-4 mb-4">
+            <div class="text-center">
+              <p class="text-xs text-gray-500 mb-1">Berat</p>
+              <p class="font-semibold text-gray-800">{{ quickStats.latestGrowth.weight }} kg</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500 mb-1">Tinggi</p>
+              <p class="font-semibold text-gray-800">{{ quickStats.latestGrowth.height }} cm</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500 mb-1">BMI</p>
+              <p class="font-semibold text-gray-800">{{ quickStats.latestGrowth.bmi }}</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500 mb-1">Status</p>
+              <span class="inline-block px-2 py-1 rounded-full text-xs font-medium" 
+                    [ngClass]="getNutritionStatusBadgeColor(quickStats.latestGrowth.nutritionStatus)">
+                {{ getNutritionStatusText(quickStats.latestGrowth.nutritionStatus) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Statistik Data</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+            <ion-icon name="scale-outline" class="text-green-600 text-2xl mb-2"></ion-icon>
+            <p class="text-green-600 text-sm font-medium">Catatan Tumbuh</p>
+            <p class="text-green-800 text-2xl font-bold">{{ quickStats.totalGrowthRecords }}</p>
+          </div>
+          
+          <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+            <ion-icon name="restaurant-outline" class="text-orange-600 text-2xl mb-2"></ion-icon>
+            <p class="text-orange-600 text-sm font-medium">Log Makanan</p>
+            <p class="text-orange-800 text-2xl font-bold">{{ quickStats.totalFoodLogs }}</p>
+          </div>
+          
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+            <ion-icon name="time-outline" class="text-blue-600 text-2xl mb-2"></ion-icon>
+            <p class="text-blue-600 text-sm font-medium">Pengingat</p>
+            <p class="text-blue-800 text-2xl font-bold">{{ quickStats.activeReminders }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="mb-8" *ngIf="child?.notes">
+        <h3 class="font-semibold text-gray-800 mb-4">Catatan</h3>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+          <div class="flex items-start space-x-3">
+            <ion-icon name="document-text-outline" class="text-yellow-600 text-xl mt-0.5"></ion-icon>
+            <p class="text-yellow-800 text-sm leading-relaxed">{{ child?.notes }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Aksi Cepat</h3>
+        <div class="grid grid-cols-2 gap-3">
+          
+          <!-- Add Growth Record -->
+          <button 
+            (click)="goToAddGrowthRecord()"
+            class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="add-outline"></ion-icon>
+            <span class="font-medium">Catat Tumbuh</span>
+          </button>
+
+          <!-- Add Food Log -->
+          <button 
+            (click)="goToAddFoodLog()"
+            class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="add-outline"></ion-icon>
+            <span class="font-medium">Log Makanan</span>
+          </button>
+
+          <!-- View Growth Records -->
+          <button 
+            (click)="goToGrowthRecords()"
+            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            <span class="font-medium">Lihat Grafik</span>
+          </button>
+
+          <!-- View Reports -->
+          <button 
+            (click)="goToReports()"
+            class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            <span class="font-medium">Laporan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Management Actions -->
+      <div class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Kelola Anak</h3>
+        <div class="space-y-3">
+          
+          <!-- Set as Active Child -->
+          <button 
+            *ngIf="!isSelectedChild()"
+            (click)="selectAsActiveChild()"
+            class="w-full bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between hover:bg-green-50 hover:border-green-300 transition-colors">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <ion-icon name="eye-outline" class="text-green-600"></ion-icon>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-gray-800">Jadikan Anak Aktif</p>
+                <p class="text-gray-500 text-sm">Pilih sebagai anak yang sedang dipantau</p>
+              </div>
+            </div>
+            <ion-icon name="arrow-forward-outline" class="text-gray-400"></ion-icon>
+          </button>
+
+          <!-- Edit Child -->
+          <button 
+            (click)="goToEditChild()"
+            class="w-full bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between hover:bg-blue-50 hover:border-blue-300 transition-colors">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <ion-icon name="create-outline" class="text-blue-600"></ion-icon>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-gray-800">Edit Informasi</p>
+                <p class="text-gray-500 text-sm">Ubah nama, tanggal lahir, atau catatan</p>
+              </div>
+            </div>
+            <ion-icon name="arrow-forward-outline" class="text-gray-400"></ion-icon>
+          </button>
+
+          <!-- Delete Child -->
+          <button 
+            (click)="confirmDelete()"
+            class="w-full bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between hover:bg-red-100 transition-colors">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <ion-icon name="trash-outline" class="text-red-600"></ion-icon>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-red-800">Hapus Data Anak</p>
+                <p class="text-red-600 text-sm">Menghapus semua data terkait</p>
+              </div>
+            </div>
+            <ion-icon name="arrow-forward-outline" class="text-red-400"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-purple-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Memuat detail anak...</span>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-sm w-full">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full mx-auto flex items-center justify-center mb-4">
+          <ion-icon name="trash-outline" class="text-red-500 text-2xl"></ion-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Hapus Data Anak?</h3>
+        <p class="text-gray-600 mb-2">
+          Yakin ingin menghapus data <strong>{{ child?.name }}</strong>?
+        </p>
+        <p class="text-red-600 text-sm mb-6">
+          Semua catatan pertumbuhan, makanan, dan pengingat akan ikut terhapus dan tidak dapat dikembalikan.
+        </p>
+        
+        <div class="flex space-x-3">
+          <button 
+            (click)="cancelDelete()"
+            class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-300 transition-colors">
+            Batal
+          </button>
+          <button 
+            (click)="deleteChild()"
+            class="flex-1 bg-red-500 text-white font-medium py-3 rounded-xl hover:bg-red-600 transition-colors">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

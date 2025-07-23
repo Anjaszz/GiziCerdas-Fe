@@ -1,0 +1,133 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white sm:rounded-2xl rounded-none sm:w-[520px] w-full sm:h-auto h-full sm:max-h-[80vh] overflow-hidden flex flex-col">
+    <!-- Header -->
+     <div class="sm:hidden flex gap-2 p-4 text-text-bolder font-semibold text-lg items-center border-b">
+      <ic-arrow-left (click)="close()" color="currentColor"/>
+      <h1>{{ modalTitle }}</h1>
+     </div>
+     <div class=" sm:flex justify-end pr-4 py-3 hidden">
+      <button (click)="close()" class="text-gray-500 hover:text-gray-700">
+       <close-icon/>
+      </button>
+     </div>
+    <div class="px-4 pb-2">
+      <h2 class="text-xl font-bold text-text-bolder sm:block hidden">{{ modalTitle }}</h2>
+      
+      <div (click)="onSelectAddressClick()" *ngIf="showSelectAddress" class="mt-6 flex justify-between p-3 bg-tint-brand-subtle rounded-lg items-center cursor-pointer text-text-primary">
+      <div class="flex gap-2">
+        <location-icon color="currentColor" class="text-text-primary"/>
+        <span 
+          class=" font-medium">
+          Pilih Dari Daftar Alamat {{ addressType === 'pickup' ? 'Pickup' : 'Penerima' }}
+        </span>
+      </div>
+      <ic-chevron-down color="currentColor" class="-rotate-90"/>
+      </div>
+
+      <svg *ngIf="showSelectAddress" class="w-full h-2 my-4 " xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="1" x2="100%" y2="1" stroke="#0000001a" stroke-width="2" stroke-dasharray="15 10" />
+      </svg>
+    </div>
+    <div class="pb-4 px-6">
+      <h1 class="text-sm font-bold text-text-bolder">{{ editAddress ? 'Ubah' : 'Buat' }} Alamat {{ addressType === 'pickup' ? 'Pickup' : 'Penerima' }}</h1>
+      <p class="text-text-subtler text-xs leading-5">Isi Form di bawah ini untuk {{ editAddress ? 'mengubah' : 'membuat' }} Alamat {{ addressType === 'pickup' ? 'Pickup' : 'Penerima' }} {{ editAddress ? '' : 'Baru' }}</p>
+    </div>
+    <!-- Form dengan overflow-y-auto untuk scroll -->
+    <form [formGroup]="addressForm" (ngSubmit)="onSubmit()" class="p-6 pt-0 overflow-y-auto flex-1">
+     
+      <!-- Hidden Type Field -->
+      <input type="hidden" formControlName="type">
+      
+      <!-- Nama -->
+      <div class="mb-4">
+        <app-input-text
+          [bgWhite]="true"
+          formControlName="name"
+          label="Nama"
+          placeholder="Masukkan Nama"
+          [maxValue]="50"
+         
+        >
+          <span slot="label-info">0/50</span>
+        
+        </app-input-text>
+      </div>
+
+      <!-- No. Telepon -->
+      <div class="mb-4">
+        <app-input-text
+          [bgWhite]="true"
+          formControlName="phone"
+          label="No. Telepon"
+          placeholder="Masukkan No. Telepon"
+          [maxValue]="15"
+          mode="tel"
+          
+        >
+          <span slot="label-info">0/15</span>
+          @if (phoneControl?.hasError('minlength') && (phoneControl?.dirty || phoneControl?.touched || isSubmit)) {
+            <p error-1 class="text-sm text-text-error">Min 8 Karakter</p>
+          }
+        </app-input-text>
+      </div>
+
+      <!-- Domisili -->
+      <div class="mb-4">
+        <div class="relative">
+          <app-input-text
+            [bgWhite]="true"
+            formControlName="domicile"
+            label="Domisili"
+            placeholder="Provinsi / Kota / Kecamatan / Kelurahan / Kode Pos"
+            readonly="true"
+            (click)="openDomicileModal()"
+            class="cursor-pointer"
+            
+          >
+           
+          </app-input-text>
+          <span class="text-text-subtler text-sm ">Provinsi / Kota / Kecamatan / Kelurahan / Kode Pos</span>
+
+          <app-location-modal
+            variant="dropdown"
+            [isOpen]="isDomicileModalOpen"
+            [title]="'Pilih Domisili'"
+            (locationSelected)="onDomicileSelected($event)"
+            (closeModal)="closeDomicileModal()"
+          ></app-location-modal>
+        </div>
+      </div>
+
+      <!-- Alamat Lengkap -->
+      <div class="mb-6">
+        <app-input-textarea
+          formControlName="address"
+          label="Alamat Lengkap"
+          placeholder="Masukkan Alamat Lengkap"
+          [rows]="4"
+         
+         
+        >
+          <span slot="label-info">0/200</span>
+        
+        </app-input-textarea>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="mb-4 p-3 bg-surface-sunken rounded-md text-sm text-text-subtler">
+       <p class="leading-5"> Dengan menekan tombol dibawah Saya menyetujui <span class="text-text-primary" routerLink="/syarat-dan-ketentuan">Syarat & Ketentuan</span> serta <span class="text-text-primary" routerLink="/kebijakan-privasi">Kebijakan Privasi</span> pengaturan alamat di Pakdome.</p>
+      </div>
+
+      <!-- Submit Button -->
+      <app-pakdome-button
+        [theme]="addressForm.valid ? 'solid-purple' : 'disable-btn'"
+        [disabled]="!addressForm.valid"
+        class="w-full"
+        type="submit"
+        size="xl"
+      >
+        Simpan Alamat {{ addressType === 'pickup' ? 'Pickup' : 'Penerima' }}
+      </app-pakdome-button>
+    </form>
+  </div>
+</div>

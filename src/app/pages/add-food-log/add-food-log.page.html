@@ -1,0 +1,516 @@
+<!-- pages/food-logs/add-food-log/add-food-log.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-green-500 to-emerald-600 pt-12 pb-6">
+    <div class="flex items-center justify-between px-6">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Tambah Log Makanan</h1>
+          <p class="text-green-100 text-sm">{{ child?.name }} - {{ formatAge() }}</p>
+        </div>
+      </div>
+      
+      <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+        <ion-icon name="restaurant-outline" class="text-white text-2xl"></ion-icon>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Progress Indicator -->
+      <div class="mb-8">
+        <div class="flex items-center justify-center space-x-2 mb-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+               [class.bg-green-500]="currentStep >= 1"
+               [class.text-white]="currentStep >= 1"
+               [class.bg-gray-200]="currentStep < 1"
+               [class.text-gray-400]="currentStep < 1">
+            <span class="text-sm font-bold">1</span>
+          </div>
+          <div class="w-12 h-1 rounded transition-colors"
+               [class.bg-green-500]="currentStep >= 2"
+               [class.bg-gray-200]="currentStep < 2"></div>
+          <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+               [class.bg-green-500]="currentStep >= 2"
+               [class.text-white]="currentStep >= 2"
+               [class.bg-gray-200]="currentStep < 2"
+               [class.text-gray-400]="currentStep < 2">
+            <span class="text-sm font-bold">2</span>
+          </div>
+          <div class="w-12 h-1 rounded transition-colors"
+               [class.bg-green-500]="currentStep >= 3"
+               [class.bg-gray-200]="currentStep < 3"></div>
+          <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+               [class.bg-green-500]="currentStep >= 3"
+               [class.text-white]="currentStep >= 3"
+               [class.bg-gray-200]="currentStep < 3"
+               [class.text-gray-400]="currentStep < 3">
+            <span class="text-sm font-bold">3</span>
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <p class="text-gray-600 text-sm">
+            <span *ngIf="currentStep === 1">Pilih Makanan</span>
+            <span *ngIf="currentStep === 2">Detail Makanan</span>
+            <span *ngIf="currentStep === 3">Konfirmasi & Simpan</span>
+          </p>
+        </div>
+      </div>
+
+      <form [formGroup]="addFoodLogForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Step 1: Select Foods -->
+        <div *ngIf="currentStep === 1" class="space-y-6">
+          <h3 class="font-semibold text-gray-800 text-center mb-6">Pilih Makanan yang Dikonsumsi</h3>
+          
+          <!-- Search Foods -->
+          <div class="space-y-4">
+            <div class="relative">
+              <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                (input)="searchFoods()"
+                placeholder="Cari makanan..."
+                class="form-input pl-10"
+                [ngModelOptions]="{standalone: true}">
+              <ion-icon name="search-outline" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></ion-icon>
+            </div>
+
+            <!-- Search Results -->
+            <div *ngIf="searchResults.length > 0" class="space-y-2 max-h-60 overflow-y-auto">
+              <h4 class="font-medium text-gray-700 text-sm">Hasil Pencarian:</h4>
+              <div *ngFor="let food of searchResults" 
+                   (click)="selectFood(food)"
+                   class="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors">
+                <div>
+                  <p class="font-medium text-gray-800">{{ food.name }}</p>
+                  <p class="text-sm text-gray-500">{{ getFoodCategoryInfo(food.category).label }}</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full" [ngClass]="getFoodCategoryInfo(food.category).color">
+                  {{ getFoodCategoryInfo(food.category).icon }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Loading Search -->
+            <div *ngIf="isSearching" class="text-center py-4">
+              <div class="animate-spin rounded-full h-8 w-8 border-2 border-green-500 border-t-transparent mx-auto"></div>
+              <p class="text-gray-500 text-sm mt-2">Mencari makanan...</p>
+            </div>
+          </div>
+
+          <!-- Common Foods -->
+          <div *ngIf="commonFoods.length > 0">
+            <h4 class="font-medium text-gray-700 mb-3">Makanan Populer:</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div *ngFor="let food of commonFoods" 
+                   (click)="selectFood(food)"
+                   class="bg-white border border-gray-200 rounded-lg p-3 text-center cursor-pointer hover:bg-gray-50 transition-colors">
+                <span class="text-2xl block mb-1">{{ getFoodCategoryInfo(food.category).icon }}</span>
+                <p class="font-medium text-gray-800 text-sm">{{ food.name }}</p>
+                <p class="text-xs text-gray-500">{{ food.nutritionPer100g.calories }} kal/100g</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Foods -->
+          <div *ngIf="selectedFoods.length > 0">
+            <h4 class="font-medium text-gray-700 mb-3">Makanan Terpilih ({{ selectedFoods.length }}):</h4>
+            <div class="space-y-2">
+              <div *ngFor="let selectedFood of selectedFoods; let i = index" 
+                   class="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                <div class="flex-1">
+                  <p class="font-medium text-green-800">{{ selectedFood.food.name }}</p>
+                  <p class="text-sm text-green-600">{{ selectedFood.portionDescription }} • {{ selectedFood.nutrition.calories }} kal</p>
+                </div>
+                <button 
+                  type="button"
+                  (click)="removeSelectedFood(i)"
+                  class="p-1 text-red-500 hover:text-red-700">
+                  <ion-icon name="remove-circle-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Total Nutrition Preview -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <h5 class="font-medium text-gray-700 mb-2">Total Nutrisi:</h5>
+              <div class="grid grid-cols-4 gap-4 text-center text-sm">
+                <div>
+                  <p class="text-gray-500">Kalori</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.calories }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Protein</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.protein }}g</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Karbo</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.carbs }}g</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Lemak</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.fat }}g</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button 
+              type="button"
+              (click)="nextStep()"
+              [disabled]="!isStepValid(1)"
+              class="w-full btn-primary">
+              Lanjutkan
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Meal Details -->
+        <div *ngIf="currentStep === 2" class="space-y-6">
+          <h3 class="font-semibold text-gray-800 text-center mb-6">Detail Makanan</h3>
+          
+          <!-- Date Field -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 flex items-center">
+              <ion-icon name="time-outline" class="text-green-500 mr-2"></ion-icon>
+              Tanggal
+            </label>
+            <input
+              type="date"
+              formControlName="date"
+              class="form-input">
+          </div>
+
+          <!-- Meal Type Field -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 flex items-center">
+              <ion-icon name="restaurant-outline" class="text-green-500 mr-2"></ion-icon>
+              Jenis Makanan
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+              <label *ngFor="let mealType of ['breakfast', 'lunch', 'dinner', 'snack']" class="relative">
+                <input 
+                  type="radio" 
+                  formControlName="mealType" 
+                  [value]="mealType"
+                  class="sr-only">
+                <div class="border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:border-green-300"
+                     [class.border-green-500]="addFoodLogForm.get('mealType')?.value === mealType"
+                     [class.bg-green-50]="addFoodLogForm.get('mealType')?.value === mealType"
+                     [class.border-gray-200]="addFoodLogForm.get('mealType')?.value !== mealType">
+                  <div class="text-center">
+                    <span class="text-2xl block mb-2">{{ getMealTypeInfo(mealType).icon }}</span>
+                    <p class="font-medium text-sm"
+                       [class.text-green-700]="addFoodLogForm.get('mealType')?.value === mealType"
+                       [class.text-gray-600]="addFoodLogForm.get('mealType')?.value !== mealType">
+                      {{ getMealTypeInfo(mealType).label }}
+                    </p>
+                    <p class="text-xs text-gray-500">{{ getMealTypeInfo(mealType).timeRange }}</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Mood Field -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 flex items-center">
+              <ion-icon name="happy-outline" class="text-green-500 mr-2"></ion-icon>
+              Mood Anak (Opsional)
+            </label>
+            <div class="grid grid-cols-4 gap-2">
+              <label *ngFor="let mood of ['happy', 'neutral', 'sad', 'fussy']" class="relative">
+                <input 
+                  type="radio" 
+                  formControlName="mood" 
+                  [value]="mood"
+                  class="sr-only">
+                <div class="border-2 rounded-lg p-3 cursor-pointer transition-all text-center"
+                     [class.border-green-500]="addFoodLogForm.get('mood')?.value === mood"
+                     [class.bg-green-50]="addFoodLogForm.get('mood')?.value === mood"
+                     [class.border-gray-200]="addFoodLogForm.get('mood')?.value !== mood">
+                  <span class="text-xl block mb-1">{{ getMoodInfo(mood).icon }}</span>
+                  <p class="text-xs font-medium"
+                     [ngClass]="addFoodLogForm.get('mood')?.value === mood ? 'text-green-700' : 'text-gray-600'">
+                    {{ getMoodInfo(mood).label }}
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Appetite Field -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700">Nafsu Makan (Opsional)</label>
+            <div class="grid grid-cols-4 gap-2">
+              <label *ngFor="let appetite of ['poor', 'normal', 'good', 'excellent']" class="relative">
+                <input 
+                  type="radio" 
+                  formControlName="appetite" 
+                  [value]="appetite"
+                  class="sr-only">
+                <div class="border-2 rounded-lg p-3 cursor-pointer transition-all text-center"
+                     [class.border-green-500]="addFoodLogForm.get('appetite')?.value === appetite"
+                     [class.bg-green-50]="addFoodLogForm.get('appetite')?.value === appetite"
+                     [class.border-gray-200]="addFoodLogForm.get('appetite')?.value !== appetite">
+                  <span class="text-xl block mb-1">{{ getAppetiteInfo(appetite).icon }}</span>
+                  <p class="text-xs font-medium"
+                     [ngClass]="addFoodLogForm.get('appetite')?.value === appetite ? 'text-green-700' : 'text-gray-600'">
+                    {{ getAppetiteInfo(appetite).label }}
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Notes Field -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 flex items-center">
+              <ion-icon name="document-text-outline" class="text-green-500 mr-2"></ion-icon>
+              Catatan (Opsional)
+            </label>
+            <textarea
+              formControlName="notes"
+              rows="3"
+              placeholder="Catatan tentang makanan atau kondisi anak..."
+              class="form-input resize-none"></textarea>
+            <p class="text-gray-400 text-xs text-right">
+              {{ addFoodLogForm.get('notes')?.value?.length || 0 }}/500 karakter
+            </p>
+          </div>
+
+          <div class="flex space-x-3 pt-4">
+            <button 
+              type="button"
+              (click)="prevStep()"
+              class="flex-1 btn-secondary">
+              Kembali
+            </button>
+            <button 
+              type="button"
+              (click)="nextStep()"
+              [disabled]="!isStepValid(2)"
+              class="flex-1 btn-primary">
+              Lanjutkan
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Confirmation -->
+        <div *ngIf="currentStep === 3" class="space-y-6">
+          <h3 class="font-semibold text-gray-800 text-center mb-6">Konfirmasi & Simpan</h3>
+          
+          <!-- Summary -->
+          <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+            <h4 class="font-medium text-green-800 mb-3">Ringkasan Log Makanan</h4>
+            
+            <!-- Meal Info -->
+            <div class="flex items-center space-x-3 mb-4">
+              <span class="text-2xl">{{ getMealTypeInfo(addFoodLogForm.get('mealType')?.value).icon }}</span>
+              <div>
+                <p class="font-medium text-green-800">{{ getMealTypeInfo(addFoodLogForm.get('mealType')?.value).label }}</p>
+                <p class="text-green-600 text-sm">{{ addFoodLogForm.get('date')?.value | date:'dd MMMM yyyy' }}</p>
+              </div>
+            </div>
+
+            <!-- Foods -->
+            <div class="space-y-2 mb-4">
+              <h5 class="font-medium text-green-700">Makanan ({{ selectedFoods.length }}):</h5>
+              <div *ngFor="let selectedFood of selectedFoods" class="flex items-center justify-between text-sm">
+                <span class="text-green-800">{{ selectedFood.food.name }}</span>
+                <span class="text-green-600">{{ selectedFood.portionDescription }}</span>
+              </div>
+            </div>
+
+            <!-- Total Nutrition -->
+            <div class="bg-white rounded-lg p-3">
+              <h5 class="font-medium text-gray-700 mb-2">Total Nutrisi:</h5>
+              <div class="grid grid-cols-4 gap-4 text-center text-sm">
+                <div>
+                  <p class="text-gray-500">Kalori</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.calories }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Protein</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.protein }}g</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Karbo</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.carbs }}g</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Lemak</p>
+                  <p class="font-semibold text-gray-800">{{ totalNutrition.fat }}g</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div *ngIf="addFoodLogForm.get('mood')?.value || addFoodLogForm.get('appetite')?.value || addFoodLogForm.get('notes')?.value" 
+                 class="mt-4 pt-4 border-t border-green-200">
+              <div *ngIf="addFoodLogForm.get('mood')?.value" class="flex items-center space-x-2 mb-2">
+                <span>{{ getMoodInfo(addFoodLogForm.get('mood')?.value).icon }}</span>
+                <span class="text-green-700 text-sm">Mood: {{ getMoodInfo(addFoodLogForm.get('mood')?.value).label }}</span>
+              </div>
+              <div *ngIf="addFoodLogForm.get('appetite')?.value" class="flex items-center space-x-2 mb-2">
+                <span>{{ getAppetiteInfo(addFoodLogForm.get('appetite')?.value).icon }}</span>
+                <span class="text-green-700 text-sm">Nafsu Makan: {{ getAppetiteInfo(addFoodLogForm.get('appetite')?.value).label }}</span>
+              </div>
+              <div *ngIf="addFoodLogForm.get('notes')?.value" class="text-green-700 text-sm">
+                <strong>Catatan:</strong> {{ addFoodLogForm.get('notes')?.value }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Nutrition vs Targets -->
+          <div *ngIf="getNutritionTargets()" class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <h4 class="font-medium text-blue-800 mb-3">Dibanding Target Harian</h4>
+            <div class="space-y-3">
+              <!-- Calories -->
+              <div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-blue-700">Kalori</span>
+                  <span class="font-medium" [ngClass]="getComplianceColor(getCompliancePercentage(totalNutrition.calories, getNutritionTargets()!.calories))">
+                    {{ totalNutrition.calories }}/{{ getNutritionTargets()!.calories }} ({{ getCompliancePercentage(totalNutrition.calories, getNutritionTargets()!.calories) }}%)
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="h-2 rounded-full transition-all"
+                       [style.width.%]="mathMin(getCompliancePercentage(totalNutrition.calories, getNutritionTargets()!.calories), 100)"
+                       [ngClass]="getCompliancePercentage(totalNutrition.calories, getNutritionTargets()!.calories) >= 70 ? 'bg-green-500' : 'bg-yellow-500'">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Protein -->
+              <div>
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-blue-700">Protein</span>
+                  <span class="font-medium" [ngClass]="getComplianceColor(getCompliancePercentage(totalNutrition.protein, getNutritionTargets()!.protein))">
+                    {{ totalNutrition.protein }}/{{ getNutritionTargets()!.protein }}g ({{ getCompliancePercentage(totalNutrition.protein, getNutritionTargets()!.protein) }}%)
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="h-2 rounded-full transition-all"
+                       [style.width.%]="mathMin(getCompliancePercentage(totalNutrition.protein, getNutritionTargets()!.protein), 100)"
+                       [ngClass]="getCompliancePercentage(totalNutrition.protein, getNutritionTargets()!.protein) >= 70 ? 'bg-green-500' : 'bg-yellow-500'">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex space-x-3 pt-4">
+            <button 
+              type="button"
+              (click)="prevStep()"
+              class="flex-1 btn-secondary">
+              Kembali
+            </button>
+            <button 
+              type="submit"
+              [disabled]="isLoading || !addFoodLogForm.valid || selectedFoods.length === 0"
+              class="flex-1 btn-primary">
+              <span *ngIf="!isLoading" class="flex items-center justify-center">
+                <ion-icon name="save-outline" class="mr-2"></ion-icon>
+                Simpan Log
+              </span>
+              <span *ngIf="isLoading" class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                Menyimpan...
+              </span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Amount Selector Modal -->
+  <div *ngIf="showAmountSelector && currentFood" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-sm w-full">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ currentFood.name }}</h3>
+      
+      <!-- Amount Input -->
+      <div class="mb-4">
+        <label class="text-sm font-medium text-gray-700 mb-2 block">Jumlah:</label>
+        <div class="flex space-x-2">
+          <input 
+            type="number" 
+            [(ngModel)]="currentAmount"
+            (ngModelChange)="updateAmount($event)"
+            min="0.1"
+            step="0.1"
+            class="flex-1 form-input"
+            [ngModelOptions]="{standalone: true}">
+          <select 
+            [(ngModel)]="currentUnit"
+            (ngModelChange)="updateUnit($event)"
+            class="form-input"
+            [ngModelOptions]="{standalone: true}">
+            <option *ngFor="let unit of getAvailableUnits()" [value]="unit">{{ unit }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Nutrition Preview -->
+      <div class="bg-gray-50 rounded-lg p-3 mb-4">
+        <p class="text-sm font-medium text-gray-700 mb-2">Estimasi Nutrisi:</p>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <span class="text-gray-500">Kalori:</span>
+            <span class="font-medium ml-1">{{ calculateNutritionWrapper(currentFood, convertToGramsWrapper(currentAmount, currentUnit, currentFood)).calories }}</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Protein:</span>
+            <span class="font-medium ml-1">{{ calculateNutritionWrapper(currentFood, convertToGramsWrapper(currentAmount, currentUnit, currentFood)).protein }}g</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex space-x-3">
+        <button 
+          (click)="cancelFoodSelection()"
+          class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 rounded-xl">
+          Batal
+        </button>
+        <button 
+          (click)="addSelectedFood()"
+          class="flex-1 bg-green-500 text-white font-medium py-3 rounded-xl">
+          Tambahkan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-green-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Menyimpan log makanan...</span>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

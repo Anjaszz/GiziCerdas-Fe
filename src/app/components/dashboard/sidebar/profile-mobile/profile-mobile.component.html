@@ -1,0 +1,74 @@
+<!-- sidebar-profile.component.html -->
+<div class="flex flex-col h-full bg-white border-r border-gray-200">
+  <!-- Header -->
+  <div class="flex justify-between p-4 gap-2 items-center sm:hidden text-icon-subtle border-b border-line-default">
+    <div class="flex gap-2 items-center">
+      <ic-arrow-left color="currentcolor" (click)="goBack()" />
+      <span class="font-semibold text-text-bolder text-lg">Pengaturan Akun</span>
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="flex-1 py-4">
+    <ul class="space-y-1">
+      <li>
+        <a routerLink="/profile" 
+           routerLinkActive="text-blue-600"
+           class="flex items-center gap-3 px-4 py-2 text-text-bolder hover:bg-gray-50 cursor-pointer">
+          <ic-user-circle  />
+          <span>Profil & Visibilitas</span>
+        </a>
+      </li>
+      
+      <li>
+        <a routerLink="/informasi-bisnis"
+           routerLinkActive="text-blue-600"
+           class="flex items-center gap-3 px-4 py-2 text-text-bolder hover:bg-gray-50 cursor-pointer">
+          <ic-book-open  />
+          <span>Informasi Bisnis</span>
+        </a>
+      </li>
+
+      <li class="border-b border-line-default">
+        <a routerLink="/daftar-alamat"
+           routerLinkActive="text-blue-600"
+           class="flex items-center gap-3 px-4 py-2 text-text-bolder hover:bg-gray-50 cursor-pointer">
+          <ic-book-open  />
+          <span>Kontak & Alamat</span>
+        </a>
+      </li>
+
+
+      <li>
+        <a (click)="openLogoutModal()"
+           class="flex items-center gap-3 px-4 py-2 text-red-500 hover:bg-gray-50 cursor-pointer">
+         <ic-logout/>
+          <span>Keluar</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Footer -->
+  <div class="border-t border-gray-200 p-4">
+    <div class="flex justify-center gap-4 text-sm text-gray-500">
+      <p routerLink="/syarat-dan-ketentuan" class="hover:text-text-bolder">Syarat & Ketentuan</p>
+      <span>·</span>
+      <p routerLink="/kebijakan-privasi" class="hover:text-text-bolder">Kebijakan Privasi</p>
+    </div>
+  </div>
+</div>
+
+<app-costum-modal-v1
+  [isOpen]="showLogoutModal"
+  title="Keluar dari Pakdome"
+  description="Apakah kamu yakin ingin keluar ?"
+  confirmButtonText="Ya, Keluar"
+  cancelButtonText="Tidak"
+  cancelButtonMobileText="Tidak"
+  modalWidth="420px"
+  buttonLayout="horizontal"
+  (onConfirm)="handleConfirm()"
+  (onCancel)="handleCancel()"
+  (onClose)="handleCancel()">
+</app-costum-modal-v1>

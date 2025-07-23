@@ -1,0 +1,57 @@
+<!-- Dropdown Style Only -->
+<div *ngIf="isOpen" 
+     class="sm:absolute sm:left-0 sm:top-full sm:mt-1 fixed inset-0 z-50 flex sm:block">
+  <!-- Overlay for mobile -->
+  <div class="sm:hidden fixed inset-0 bg-black bg-opacity-50" (click)="close()"></div>
+  
+  <!-- Content container -->
+  <div #dropdownContainer
+       class="sm:w-full w-full sm:static fixed bottom-0 bg-white border border-line-default sm:rounded-lg sm:shadow-lg rounded-t-3xl"
+       [ngStyle]="{'max-height': isMobile ? mobileMaxHeight + 'px' : '280px', 'overflow': 'hidden'}">
+    
+    <!-- Drag Indicator -->
+    <div #dragIndicator
+         class="sm:hidden w-full flex justify-center pt-2 pb-1 cursor-pointer"
+         (touchstart)="onDragIndicatorTouchStart($event)"
+         (touchmove)="onDragIndicatorTouchMove($event)"
+         (touchend)="onDragIndicatorTouchEnd($event)">
+      <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
+    </div>
+    
+    <!-- Dropdown Content -->
+    <div class="px-4 pb-4">
+      <app-input-text
+        [bgWhite]="true"
+        [placeholder]="placeholder"
+        [(ngModel)]="searchQuery"
+        mode="text"
+        class="w-full"
+        (enterApi)="onSearch()"
+      />
+    </div>
+
+    <!-- Loading indicator -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-10">
+      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-bold-brand-default"></div>
+    </div>
+
+    <!-- Empty state when no items found -->
+    <div *ngIf="!isLoading && filteredAllItems.length === 0" class="text-center py-10 text-text-subtler">
+      <p>Tidak ada {{ dropdownType === 'itemType' ? 'jenis barang' : 'satuan' }} yang cocok</p>
+      <p class="text-xs mt-2">Coba kata kunci lain</p>
+    </div>
+
+    <!-- Scrollable Items Container with Native Scrollbar -->
+    <div *ngIf="!isLoading && filteredAllItems.length > 0" class="overflow-y-auto native-scrollbar" 
+         [ngStyle]="{'max-height': isMobile ? 'calc(' + mobileMaxHeight + 'px - 90px)' : 'calc(280px - 90px)'}">      
+      <!-- Item List -->
+      <div
+        *ngFor="let item of filteredAllItems"
+        (click)="selectAndClose(item)"
+        class="py-3 px-6 border-b border-line-default hover:text-text-white hover:bg-bold-brand-default cursor-pointer text-text-subtle flex items-center justify-between group"
+      >
+        <span class="tracking-custom-wide text-base">{{ item.name }}</span>
+      </div>
+    </div>
+  </div>
+</div>

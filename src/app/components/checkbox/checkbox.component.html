@@ -1,0 +1,50 @@
+<!-- checkbox.component.html -->
+<div [class]="getContainerClasses()">
+  @if(variant === 'right') {
+    <div [class]="getContentClasses()">
+      @if(title){
+        <div class="font-medium text-text-subtle sm:text-base text-sm">{{ title }}</div>
+      }
+      @if(description){
+        <div class="text-text-subtlest leading-5 max-w-sm">{{ description }}</div>
+      }
+    </div>
+  }
+
+  <label class="flex items-center cursor-pointer relative pt-1 ">
+    <input
+    type="checkbox"
+    [attr.aria-label]="name"
+    [attr.name]="name"
+    [required]="required"
+    [checked]="checked"
+    [disabled]="disabled"
+    [class]="checkboxBaseClass + ' ' + checkboxSizeClass + ' ' + checkboxThemeClass"
+    [ngClass]="[styleClass]"
+    (change)="onInputChange($event)"
+    (blur)="onBlur()"
+  />
+    <span [ngClass]="[
+  'text-white opacity-0 peer-checked:opacity-100 relative transform -translate-x-1/2 -translate-y-1/2',
+  size === 'md' ? 'top-[0.45rem] right-[0.6rem]' : 'top-[0.5rem] right-[0.5rem]'
+]">
+     <checkbox-icon/>
+    </span>
+  </label>
+
+  @if(variant !== 'right') {
+    <div [class]="getContentClasses()">
+      @if(title){
+        <div class="font-medium text-text-subtle sm:text-base text-sm">
+          {{ title }}
+          @if(optionalText) {
+            <span class="text-text-subtlest text-sm">({{ optionalText }})</span>
+          }
+        </div>
+      }   
+      @if(description){
+        <div class="text-text-subtlest text-xs leading-5 max-w-sm">{{ description }}</div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,84 @@
+<div
+class="flex flex-col  lg:grid lg:grid-cols-3 lg:gap-5 lg:pt-3 lg:border-t-1 lg:border-line-default"
+>
+    <div class="hidden lg:flex lg:flex-col ">
+        <div class="flex flex-col gap-1 justify-start ">
+            <h6 class="font-inter font-bold text-xs text-text-subtle">
+                {{ label }}
+                <span class="text-text-subtler text-xs font-inter font-normal">
+                    {{ labelInfo }}</span
+                >
+            </h6>
+            <h6 class="font-inter font-normal text-2xs text-text-subtler">
+                {{ labelOptional }}
+            </h6>
+        </div>
+    </div>
+    <div class="flex flex-col gap-1 lg:col-span-2">
+        <div class="pb-1 block lg:hidden">
+            <div #Label>
+                <ng-content select="[slot=label]"></ng-content>
+            </div>
+            <div *ngIf="Label.children.length === 0" class="flex items-center justify-between">
+                <h6 class="font-inter font-semibold text-2xs text-text-subtle">{{ label }} <span class="text-text-subtler text-xs font-inter font-normal">{{ labelInfo }}</span></h6>
+                <p class="text-text-subtler text-xs font-inter font-normal">{{ labelOptional }}</p>
+            </div>
+        </div>
+        <div 
+            [ngClass]="error ? 'border-text-error' : 'border-line-default focus-within:border-tint-blue-subtle'"
+            class="flex flex-col items-center border-1  bg-text-white  rounded-md p-2   duration-150 transition-all w-full"
+            
+        >
+            @if (variant == 'accordion' && !isExpanded && !value.length) {
+                <button 
+                    type="button"
+                    class="flex justify-between items-center w-full"
+                    (click)="isExpanded = !isExpanded; InputArea.focus()"
+                >
+                    <p class="font-medium text-2xs text-text-subtle">Tambah Catatan</p>
+                    <ic-pencil-square class="w-4 text-icon-default"/>
+                </button>
+            }
+            <div
+                class="grid overflow-hidden duration-300 transition-all w-full"
+                [ngClass]="isExpanded || variant == 'default' || value.length ? 'max-h-screen opacity-100 ease-in' : 'max-h-0 opacity-0 ease-out'"
+            >
+                <textarea
+                    #InputArea
+                    class="text-text-subtle bg-transparent text-sm font-inter font-normal transition-all w-full focus-within:outline-none resize-none"
+                    [ngClass]="error ? 'placeholder:text-text-error' : 'placeholder:text-text-subtlest'" 
+                    [placeholder]="placeholder"
+                    [rows]="rows"
+                    [disabled]="isDisabled"
+                    [readOnly]="readonly"
+                    [(ngModel)]="value"
+                ></textarea>
+                @if (variant == 'accordion') {
+                    <div class="flex justify-end gap-2 items-center w-full">
+                        <button (click)="cancelEraseAction()" class="font-medium text-2xs text-text-subtle" type="button">
+                            {{isDisabled ? 'Hapus' : 'Cancel'}} 
+                            @if (!isDisabled) {
+                                <span class="bg-surface-low rounded p-1 leading-none ml-1">ESC</span>
+                            }
+                        </button>
+                        <button (click)="saveEditAction()" class="font-medium text-2xs text-text-subtle" type="button">
+                            {{isDisabled ? 'Ubah' : 'Simpan'}} 
+                            @if (!isDisabled) {
+                                <span class="bg-surface-low rounded p-1 leading-none ml-1">Shift + Enter</span>
+                            }
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="field-default__footer pt-1">
+            <div #Helper>
+                <ng-content select="[slot=helper]"></ng-content>
+            </div>
+            <ng-content select="[error-1]"/>
+            @if (Helper.children.length === 0) {
+                <p class="text-text-subtler text-xs font-inter font-normal">{{ helper }}</p>
+            }
+        </div>
+    </div>
+</div>

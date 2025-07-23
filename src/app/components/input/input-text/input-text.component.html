@@ -1,0 +1,378 @@
+<!-- eslint-disable @angular-eslint/template/eqeqeq -->
+<div class="flex flex-col ">
+	<div #Label>
+		<ng-content select="[label]"/>
+	</div>
+	@if (Label.children.length === 0) {
+	<div class="flex flex-col gap-1 justify-start">
+		<h1 class="font-inter font-semibold text-2xs text-text-bolder">
+			{{ label }}
+			<span class="text-text-subtle text-xs font-inter font-normal">
+				{{ labelInfo }}</span
+			>
+		</h1>
+		<h1 class="font-inter font-semibold text-2xs text-text-subtle">
+			{{ labelOptional }}
+		</h1>
+	</div>
+	}
+	<!-- [ngClass]="editMode ? 'pb-1 border-b-1 border-b-line-default' : 'p-2 border-1 border-line-default rounded-lg'" -->
+	<div
+		#MainInput
+		appClickOutside
+		(clickOutside)="clickOutsideDropdown()"
+		[ngClass]="{
+			'w-full h-12': !shortInput,
+			'max-w-[18.875rem]': shortInput,
+			'focus-within:border-text-discovery border-line-default': !error,
+			'border-[#FF4242]': error,
+			'opacity-90 !bg-alpha-1 ': isDisabled,
+			'pl-2': Start.children.length !== 0,
+			'bg-surface-sunken border-b-1': bgGrey,
+			'border-1  rounded-lg ': !bgGrey,
+			'bg-text-white': bgWhite
+		}"
+		class="flex items-center gap-2 transition-colors duration-200 mb-1 pr-2 border-line-default relative "
+		(keydown.enter)="enterApi.observed ? enterApi.emit() : (combox ? comboxEntered() : null)"
+		(keydown.arrowdown)="combox === null ? null : comboxNavigationDown()"
+		(keydown.arrowup)="combox === null ? null : comboxNavigationUp()"
+		(keydown.escape)="combox === null ? null : setComboxOpen(false,'key escape')"
+	>
+		<div #Start>
+			<ng-content select="[start]" />
+		</div>
+		@if (leadingDropdown && leadingDropdownPosition == 'left') {
+			<button 
+				type="button" 
+				class="font-normal font-inter text-base text-text-subtle leading-none flex gap-1 items-center " 
+				(click)="leadingDropdownOpen = !leadingDropdownOpen; "
+			>
+				{{ leadingDropdown.selected.label }}
+				<ic-chevron-down 
+					class="w-5 text-icon-default transition-all" 
+					[ngClass]="{
+						'rotate-180' : leadingDropdownOpen
+					}" 
+				/>
+			</button>
+		}
+		@if (selectedCountry) {
+			<button 
+				type="button" 
+				class="font-normal font-inter text-base text-text-subtle leading-none flex gap-1 flex-shrink-0 items-center "
+				(click)="flagDropdownOpen = !flagDropdownOpen; "
+			>
+				<img src="/assets/flag/{{selectedCountry.code | lowercase}}.svg" class="w-6 h-[1.1381rem] object-cover object-center rounded border-1 border-line-default" alt="{{selectedCountry.country}}" >
+				+{{ selectedCountry.ext }}
+				<ic-chevron-down 
+					class="w-5 text-icon-default transition-all" 
+					[ngClass]="{
+						'rotate-180' : flagDropdownOpen
+					}" 
+				/>
+			</button>
+		}
+		@if (substarctValue) {
+			<button type="button" class="text-icon-default " (click)="calculatetVal(false)">
+				<ic-circle-minus 
+					class="inline-block w-5  transition-all active:scale-125"
+					[ngClass]="value == '0' ? 'text-icon-subtlest' : 'text-icon-primary'"	
+				/>
+			</button>
+		}
+		<!-- <hr
+			class="border-1 border-line-default h-full border-red-500"
+		> -->
+		<div class="flex grow">
+			@if (mode === 'currency') {
+				<input
+					appInputRule
+					[max]="maxValue"
+					class="text-text-bolder  text-base font-inter font-normal placeholder:text-text-subtlest w-full py-2 leading-none outline-none"
+					[ngClass]="{
+						'placeholder:!text-[#FF4242]': error,
+						'text-center': isTextCenter,
+						'border-l-2 border-line-default': separatorLeft,
+						'border-r-2 border-line-default': separatorRight,
+						'pl-2': Start.children.length !== 0 || selectedCountry,
+						'pl-0': Start.children.length == 0,
+					}"
+					type="tel"
+					[readonly]="readonly"
+					input-rule="currency"
+					[placeholder]="placeholder"
+					[(ngModel)]="currencyVal"
+					(ngModelChange)="onCurrencyValChange()"
+					(focus)="focused = true"
+					(blur)="focused = false"
+					[disabled]="isDisabled"
+					(keydown.enter)="enterApi.emit()"
+				/>
+			}@else if (mode === 'lat') {
+				<input
+					class="text-text-bolder text-base font-inter font-normal w-full placeholder:!text-text-subtlest py-2 leading-none outline-none "
+					[ngClass]="{
+						'placeholder:!text-[#FF4242]': error,
+						'border-l-2 border-line-default': separatorLeft,
+						'border-r-2 border-line-default': separatorRight,
+						'pl-2': Start.children.length !== 0,
+						'pl-0': Start.children.length == 0,
+					}"
+					type="number"
+					[readonly]="readonly"
+					[placeholder]="placeholder"
+					[attr.inputmode]="inputmode"
+					[(ngModel)]="value"
+					(focus)="focused = true"
+					(blur)="focused = false"
+					[disabled]="isDisabled"
+					(keydown.enter)="enterApi.emit()"
+				/>
+			}@else {
+				@if (comboxOrMenu == 'menu') {
+					<button 
+						type="button"
+						class="text-base font-inter py-2 leading-none font-normal text-left w-full outline-none"
+						[ngClass]="value.length ? 'text-text-bolder' : 'text-text-subtlest'"
+						(click)="combox ? setComboxOpen(true,'click input') : null"
+					>
+						{{value.length ? value : placeholder}}
+					</button>
+				}@else {
+					<input
+						#InputDefault
+						appInputRule
+						class="text-text-bolder text-base font-inter py-2 leading-none font-normal w-full placeholder:text-text-subtlest outline-none"
+						[ngClass]="{
+							'placeholder:!text-[#FF4242]': error,
+							'border-l-2 border-line-default': separatorLeft,
+							'border-r-2 border-line-default': separatorRight,
+							'pl-2': Start.children.length !== 0,
+							'pl-0': Start.children.length == 0,
+							'text-center': isTextCenter,
+						}"
+						[type]="type"
+						[input-rule]="inputRule"
+						[type]="type === 'password-toggle' ? (isPasswordVisible ? 'text' : 'password') : type"
+						[readonly]="readonly"
+						[placeholder]="placeholder"
+						[attr.inputmode]="inputmode"
+						[(ngModel)]="value"
+						(focus)="focused = true"
+						(blur)="focused = false"
+						[disabled]="isDisabled"
+						(click)="combox ? setComboxOpen(true,'click input') : null"
+						(ngModelChange)="combox ? comboxChanged(value) : null"
+					/>
+					<!-- Add password toggle icon -->
+@if (type === 'password-toggle') {
+	<div
+	  (click)="togglePasswordVisibility()"
+	  class="cursor-pointer p-2"
+	  suffix
+	>
+	  <eye-off-icon *ngIf="!isPasswordVisible" [color]="error ? '#FF4242' : '#667085'"></eye-off-icon>
+	  <eye-icon *ngIf="isPasswordVisible" [color]="error ? '#FF4242' : '#667085'"></eye-icon>
+	</div>
+  }
+				}
+			}
+		</div>
+		@if (editMode) {
+			<button type="button" class="w-5 text-icon-default" (click)="isDisabled = !isDisabled">
+				<ic-sun/>
+			</button>
+		}@else {
+			<ng-content select="[end]"/>
+		}
+		@if (leadingDropdown && leadingDropdownPosition == 'right') {
+			<button 
+				type="button" 
+				class="font-normal font-inter text-base text-text-subtle leading-none flex gap-1 items-center " 
+				(click)="leadingDropdownOpen = !leadingDropdownOpen; "
+			>
+				{{ leadingDropdown.selected.label }}
+				<ic-chevron-down 
+					class="w-5 text-icon-default transition-all" 
+					[ngClass]="{
+						'rotate-180' : leadingDropdownOpen
+					}" 
+				/>
+			</button>
+		}
+		@if (addValue) {
+			<button type="button" class="text-icon-primary" (click)="calculatetVal(true)">
+				<ic-circle-plus 
+					class="inline-block w-5  transition-all active:scale-125"
+				/>
+			</button>
+		}
+		@if (enterApi.observed) {
+			<button 
+			  [tabIndex]="-1" 
+			  (click)="handleEnterClick()" 
+			  type="button" 
+			  class="bg-tint-brand-default rounded py-0.5 px-1.5 flex gap-1 items-center"
+			>
+			@if (enterButtonText && !(hasSearched && (deleteIcon || deleteBlueIcon))) {
+				<p class="text-xs leading-5 text-text-subtler font-medium text-nowrap text-center">
+				  {{enterButtonText}}
+				</p>
+			  }
+			 
+				@if (enterIcon && !(hasSearched && (deleteIcon || deleteBlueIcon))) {
+					<ic-enter class="w-3.5 h-3.5 text-text-subtler inline-block"/>
+					
+				}
+				
+			  
+			</button>
+			@if (deleteIcon && hasSearched) {
+				<button 
+				  type="button" 
+				  class="flex items-center" 
+				  (click)="resetInputValue() ; enterApi.emit()"
+				>
+				  <ic-delete-search />
+				</button>
+			  }
+			  @if (deleteBlueIcon && hasSearched) {
+				<button 
+				  type="button" 
+				  class="flex items-center" 
+				  (click)="resetInputValue() ; enterApi.emit()"
+				>
+				  <ic-delete-blue />
+				</button>
+			  }
+		  }
+
+		@if (leadingDropdownBinding && leadingDropdownOpen) {
+			<div
+				@fadeInOut
+				class="flex flex-col rounded-lg bg-surface-default p-2 absolute left-0 top-[105%] z-50 shadow-md"
+			>
+				<div class="flex border-b-1 border-b-line-default">
+					<input
+						#dropdownInput
+						id="input-leading-dropdown"
+						appInputRule
+						class="text-text-bolder text-base font-inter py-1 pl-2 leading-none font-normal w-full placeholder:text-text-subtlest outline-none"
+						type="text"
+						[(ngModel)]="leadingDropdownSearch"
+						(ngModelChange)="filterLeadingDropdown(leadingDropdownSearch)"
+					/>
+					<ic-search class="w-5 text-icon-default"/>	
+				</div>
+				@for (item of leadingDropdownBinding.options; track $index) {
+					<button 
+						[attr.data-index]="$index"
+						type="button" 
+						class="font-normal font-inter text-base text-text-subtle leading-none p-2 transition-all rounded-sm text-left min-w-[100px] hover:bg-alpha-on-high hover:text-text-bolder relative" 
+						[ngClass]="{
+							'after:absolute after:left-0 after:top-2.5 after:w-1 after:h-3 after:bg-text-brand after:rounded-tr-md after:rounded-br-md' : item.label === (leadingDropdown?.selected?.label || '') 
+						}"
+						(click)="leadingDropdownChange.emit(item); leadingDropdownOpen = false; leadingDropdownSearch = '';filterLeadingDropdown('')"
+					>
+						{{item.label}}
+					</button>
+				}
+			</div>
+		}
+
+		@if (flagDropdownOpen) {
+			<section 
+				id="panel-country" class="absolute top-[110%] left-0 bg-surface-default flex flex-col max-h-52 w-[180px] px-2 z-50 shadow-lg"
+				@fadeInOut 
+			>
+				<input
+					appInputRule
+					#flagdropdown
+					id="input-flag-dropdown"
+					class="text-text-bolder text-base font-inter py-1 pl-2 leading-none  font-normal w-full border-b-1 border-line-default placeholder:text-text-subtlest outline-none"
+					type="text"
+					placeholder="Cari Negara"
+					[(ngModel)]="stringListCountry"
+					(ngModelChange)="filterFlag(stringListCountry)"
+				/>
+				<!-- <app-input-text #flagdropdown [ngModelOptions]="{standalone: true}" (ngModelChange)="filterFlag(stringListCountry)" [(ngModel)]="stringListCountry" placeholder="Cari Negara" [bgWhite]="true"/> -->
+				<div class="flex flex-col gap-1.5 overflow-auto grow">
+					@for (item of filteredListCountry; track $index) {
+						<button 
+							(click)="selectCountry.emit(item);stringListCountry = ''; filterFlag(stringListCountry); flagDropdownOpen = false"  
+							[ngClass]="item.ext === (selectedCountry?.ext ?? '') ? 'after:absolute after:left-0 after:top-2.5 after:w-1 after:h-3 after:bg-text-brand after:rounded-tr-md after:rounded-br-md' : ''" 
+							class="px-2 flex items-center gap-1.5 bg-surface-default py-1.5 relative hover:bg-surface-low transition-all rounded-md" type="button" 
+						>
+							<img src="/assets/flag/{{item.code | lowercase}}.svg" class="w-6 h-[1.1381rem] object-cover object-center rounded border-1 border-line-default" alt="{{item.country}}" >
+							<p class="text-left font-inter font-medium text-text-subtle text-base">{{item.country}}</p>
+						</button>
+					}
+				</div>
+			</section>
+		}
+
+		@if (combox) {
+			<button 
+				type="button" 
+				class="font-normal font-inter text-base text-text-subtle leading-none flex gap-1 items-center " 
+				(click)="comboxOpen ? setComboxOpen(false,'button true') : setComboxOpen(true,'button false'); InputDefault.nativeElement.focus()"
+				
+			>
+				<ic-chevron-down 
+					class="w-5 text-icon-default transition-all" 
+					[ngClass]="{
+						'rotate-180' : comboxOpen
+					}" 
+				/>
+			</button>
+		}
+
+		@if (comboxOpen && comboxFiltered && combox) {
+			<div
+				@fadeInOut
+				id="combox-dropdown"
+				class="flex flex-col rounded-lg bg-surface-default py-2 absolute left-0 top-[105%] z-50 shadow-md w-full max-h-[250px] grow overflow-auto"
+			>
+				<ul>
+					@for (item of comboxFiltered.options; track $index) {
+						<li
+							#ListItemRef 
+							(click)="comboxClicked(item)"
+							class="w-full cursor-pointer flex flex-col gap-1 text-left   text-base combobox_pasive  font-inter border-b-1 border-b-line-default py-2 px-4 peer-hover:text-text-white hover:bg-bold-brand-default hover:text-text-white rounded-sm transition-all"
+						>
+							<div class="flex items-center">
+								<h1 [ngClass]="item.label === combox.selected.label ? 'font-semibold' : 'font-normal'" class="flex grow">
+									{{item.label }} 
+									<span class="pl-1 text-base leading-none  font-normal"> {{ item.option}}</span>
+								</h1>
+								@if (item.label === combox.selected.label) {
+									<ic-check-simple class="w-5 h-5 "/>
+								}
+							</div>
+							<p class="text-left text-xs font-inter font-normal">
+								{{item.desc}}
+							</p>
+						</li>
+					}@empty {
+						<li
+							class="w-full text-left font-inter text-base text-text-subtle  p-2 hover:bg-text-primary-tint hover:text-text-white rounded-sm transition-all"
+						>
+							Pencarian tidak ditemukan
+						</li>
+					}
+				</ul>
+			</div>
+		}
+	</div>
+	<h1 class="font-inter font-normal text-2xs text-text-subtler">
+		{{ helper }}
+		<span class="text-text-subtler text-xs font-inter font-light">
+			{{ helperInfo }}</span
+		>
+	</h1>
+	<ng-content select="[additional]"/>
+	<ng-content select="[error-1]"/>
+	<ng-content select="[error-2]"/>
+	<ng-content select="[error-3]"/>
+</div>
+

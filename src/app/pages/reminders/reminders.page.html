@@ -1,0 +1,322 @@
+<!-- pages/reminders/reminders.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-purple-500 to-indigo-600 pt-12 pb-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 mb-4">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Pengingat</h1>
+          <p class="text-purple-100 text-sm">{{ child?.name }} - {{ formatAge() }}</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button (click)="refreshData()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="refresh-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <button 
+          (click)="goToAddReminder()"
+          class="bg-white text-purple-600 font-semibold px-4 py-2 rounded-full flex items-center space-x-2">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Tambah</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="mx-6">
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+        <div class="grid grid-cols-4 gap-4 text-center">
+          <div>
+            <p class="text-purple-100 text-xs mb-1">Total</p>
+            <p class="text-white text-xl font-bold">{{ quickStats.total }}</p>
+          </div>
+          <div>
+            <p class="text-purple-100 text-xs mb-1">Aktif</p>
+            <p class="text-white text-xl font-bold">{{ quickStats.active }}</p>
+          </div>
+          <div>
+            <p class="text-purple-100 text-xs mb-1">Hari Ini</p>
+            <p class="text-white text-xl font-bold">{{ quickStats.todaysReminders }}</p>
+          </div>
+          <div>
+            <p class="text-purple-100 text-xs mb-1">Terlewat</p>
+            <p class="text-white text-xl font-bold text-red-300">{{ quickStats.overdue }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Filters -->
+      <div class="mb-6">
+        <h3 class="font-semibold text-gray-800 mb-4">Filter Pengingat</h3>
+        
+        <!-- Status Filter -->
+        <div class="mb-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">Status:</p>
+          <div class="flex space-x-2 overflow-x-auto">
+            <button 
+              *ngFor="let filter of filterOptions"
+              (click)="changeFilter(filter.value)"
+              class="px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+              [class.bg-purple-500]="selectedFilter === filter.value"
+              [class.text-white]="selectedFilter === filter.value"
+              [class.bg-gray-200]="selectedFilter !== filter.value"
+              [class.text-gray-700]="selectedFilter !== filter.value">
+              {{ filter.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Type Filter -->
+        <div class="mb-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">Jenis:</p>
+          <div class="flex space-x-2 overflow-x-auto">
+            <button 
+              *ngFor="let type of getTypeFilterOptions()"
+              (click)="changeTypeFilter(type.value)"
+              class="px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center space-x-1"
+              [class.bg-indigo-500]="selectedType === type.value"
+              [class.text-white]="selectedType === type.value"
+              [class.bg-gray-200]="selectedType !== type.value"
+              [class.text-gray-700]="selectedType !== type.value">
+              <span>{{ type.icon }}</span>
+              <span>{{ type.label }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overdue Alerts -->
+      <div *ngIf="quickStats.overdue > 0" class="mb-6">
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div class="flex items-center space-x-3">
+            <ion-icon name="warning-outline" class="text-red-600 text-xl"></ion-icon>
+            <div>
+              <h4 class="font-medium text-red-800">{{ quickStats.overdue }} Pengingat Terlewat</h4>
+              <p class="text-red-600 text-sm">Ada pengingat yang belum diselesaikan hari ini</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredReminders.length === 0 && !isLoading" class="text-center py-16">
+        <div class="w-24 h-24 bg-purple-100 rounded-full mx-auto flex items-center justify-center mb-6">
+          <ion-icon name="notifications-outline" class="text-purple-500 text-4xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">
+          <span *ngIf="selectedFilter === 'all'">Belum Ada Pengingat</span>
+          <span *ngIf="selectedFilter !== 'all'">Tidak Ada Pengingat {{ getFilterLabel(selectedFilter) }}</span>
+        </h3>
+        <p class="text-gray-500 mb-8 max-w-sm mx-auto">
+          <span *ngIf="selectedFilter === 'all'">
+            Buat pengingat untuk membantu mengatur jadwal harian {{ child?.name }}
+          </span>
+          <span *ngIf="selectedFilter !== 'all'">
+            Tidak ada pengingat yang sesuai dengan filter yang dipilih
+          </span>
+        </p>
+        <button 
+          *ngIf="selectedFilter === 'all'"
+          (click)="goToAddReminder()"
+          class="btn-primary">
+          <ion-icon name="add-outline" class="mr-2"></ion-icon>
+          Buat Pengingat Pertama
+        </button>
+        <button 
+          *ngIf="selectedFilter !== 'all'"
+          (click)="changeFilter('all')"
+          class="btn-secondary">
+          Lihat Semua Pengingat
+        </button>
+      </div>
+
+      <!-- Reminders List -->
+      <div *ngIf="filteredReminders.length > 0" class="space-y-4 mb-8">
+        <h3 class="font-semibold text-gray-800">
+          {{ filteredReminders.length }} Pengingat 
+          <span class="text-gray-500 text-sm font-normal">
+            ({{ getFilterLabel(selectedFilter) }})
+          </span>
+        </h3>
+
+        <div *ngFor="let reminder of filteredReminders" 
+             class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer"
+             [class.border-red-300]="isOverdue(reminder)"
+             [class.bg-red-50]="isOverdue(reminder)"
+             [class.opacity-60]="!reminder.isActive">
+          
+          <!-- Reminder Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-start space-x-3 flex-1">
+              <!-- Type Icon -->
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" 
+                   [ngClass]="getReminderTypeInfo(reminder.type).color">
+                {{ getReminderTypeInfo(reminder.type).icon }}
+              </div>
+              
+              <!-- Reminder Info -->
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-1">
+                  <h4 class="font-semibold text-gray-800">{{ reminder.title }}</h4>
+                  <span *ngIf="!reminder.isActive" 
+                        class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">
+                    Nonaktif
+                  </span>
+                  <span *ngIf="isOverdue(reminder)" 
+                        class="bg-red-200 text-red-800 text-xs px-2 py-1 rounded-full">
+                    Terlewat
+                  </span>
+                  <span *ngIf="isActiveToday(reminder) && !isOverdue(reminder)" 
+                        class="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full">
+                    Aktif
+                  </span>
+                </div>
+                
+                <p class="text-gray-600 text-sm mb-2" *ngIf="reminder.description">
+                  {{ reminder.description }}
+                </p>
+                
+                <!-- Schedule Info -->
+                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                  <span class="flex items-center space-x-1">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ formatTime(reminder.time) }}</span>
+                  </span>
+                  <span>{{ formatDays(reminder.days) }}</span>
+                </div>
+
+                <!-- Time Until Next -->
+                <p class="text-xs mt-1" 
+                   [class.text-green-600]="isActiveToday(reminder) && !isOverdue(reminder)"
+                   [class.text-red-600]="isOverdue(reminder)"
+                   [class.text-gray-500]="!isActiveToday(reminder)">
+                  {{ getTimeUntilNext(reminder) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-2">
+              <!-- Toggle Status -->
+              <button 
+                (click)="toggleReminderStatus(reminder, $event)"
+                class="p-2 rounded-full transition-colors"
+                [class.bg-green-100]="reminder.isActive"
+                [class.text-green-600]="reminder.isActive"
+                [class.bg-gray-100]="!reminder.isActive"
+                [class.text-gray-500]="!reminder.isActive">
+                <ion-icon [name]="reminder.isActive ? 'pause-outline' : 'play-outline'"></ion-icon>
+              </button>
+
+              <!-- Mark as Done (if active today and not overdue) -->
+              <button 
+                *ngIf="isActiveToday(reminder)"
+                (click)="triggerReminder(reminder, $event)"
+                class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+              </button>
+
+              <!-- Edit -->
+              <button 
+                (click)="goToEditReminder(reminder, $event)"
+                class="p-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
+
+              <!-- Delete -->
+              <button 
+                (click)="confirmDelete(reminder, $event)"
+                class="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div *ngIf="allReminders.length > 0" class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Aksi Cepat</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button 
+            (click)="goToAddReminder()"
+            class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="add-outline"></ion-icon>
+            <span class="font-medium">Tambah Pengingat</span>
+          </button>
+          
+          <button 
+            (click)="changeFilter('today')"
+            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="time-outline"></ion-icon>
+            <span class="font-medium">Pengingat Hari Ini</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-purple-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Memuat pengingat...</span>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-sm w-full">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full mx-auto flex items-center justify-center mb-4">
+          <ion-icon name="trash-outline" class="text-red-500 text-2xl"></ion-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Hapus Pengingat?</h3>
+        <p class="text-gray-600 mb-2">
+          <strong>{{ reminderToDelete?.title }}</strong>
+        </p>
+        <p class="text-gray-600 mb-6">
+          Pengingat yang dihapus tidak dapat dikembalikan.
+        </p>
+        
+        <div class="flex space-x-3">
+          <button 
+            (click)="cancelDelete()"
+            class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-300 transition-colors">
+            Batal
+          </button>
+          <button 
+            (click)="deleteReminder()"
+            class="flex-1 bg-red-500 text-white font-medium py-3 rounded-xl hover:bg-red-600 transition-colors">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

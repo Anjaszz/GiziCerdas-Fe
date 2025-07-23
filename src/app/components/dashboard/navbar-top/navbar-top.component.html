@@ -1,0 +1,122 @@
+
+
+<ion-header>
+  <div class="flex items-center justify-between p-2 bg-white shadow-sm w-full">
+    <!-- Logo Section -->
+    <div class="flex items-center py-[10px] sm:px-3 px-1 cursor-pointer" routerLink="/dashboard">
+      <img src="assets/footer-logo-375.svg" alt="Pakdome Logo" class="w-full max-w-[200px] sm:max-w-[250px] md:max-w-[298px]" height="38">
+    </div>
+    
+  
+    <!-- Search Section -->
+  
+  
+    <!-- Actions Section -->
+    <div class="flex items-center gap-2">
+  
+      <!-- <div class="sm:border border-0 border-line-default sm:p-2 rounded-md flex text-icon-subtle">
+    
+        <app-input-text
+            [bgWhite]="true"
+            placeholder="Cari"
+            [(ngModel)]="searchQuery"
+            mode="text"
+            [enterButtonText]="'⌘+K'"
+            class="w-full hidden lg:block"
+            (enterApi)="onSearch()"
+          /> 
+          <app-input-text
+          [bgWhite]="true"
+          placeholder="Cari"
+          [(ngModel)]="searchQuery"
+          mode="text"
+          [enterButtonText]="'⌘+K'"
+          class="w-full md:hidden block"
+        
+        /> 
+       
+        
+        <ic-search class="w-5 sm:block hidden" strokeW="2" color="currentcolor" />	
+      
+    </div> -->
+  
+      <!-- <div class="p-2 border border-line-default rounded-md">
+        <button class="text-gray-600 hover:text-gray-800" (click)="toggleLocationPopup()">
+          <location-icon></location-icon>
+        </button>
+      </div> -->
+      <!-- <app-location-popup [isOpen]="isLocationPopupOpen"></app-location-popup> -->
+   
+      <!-- <div class="p-2 border border-line-default rounded-md relative">
+        <button class="text-gray-600 hover:text-gray-800" (click)="onNotifClick()">
+          <bell-icon></bell-icon>
+        </button>
+      
+        <notif-popup 
+          *ngIf="!deviceService.isMobile()" 
+          [isOpen]="isNotifPopupOpen">
+        </notif-popup>
+      </div> -->
+      
+      <app-pakdome-button class="hidden sm:block" (clicked)="handleBuatKiriman()" tooltip="Buat Kiriman Disini">Buat Kiriman</app-pakdome-button>
+    
+      @defer (on viewport) {
+        <div class="relative">
+    
+          <app-dropdown
+            *ngIf="isDesktopView"
+            [items]="dropdownItems"
+            variant="right"
+            [showHeader]="true"
+            [name]="userName"
+            [role]="userRole" 
+            [defaultSubmenuPosition]="'left'"
+            [imageUrl]="''"
+          >
+            <button dropdownTrigger aria-label="avatar-btn">
+              <app-avatar 
+                [size]="'sm'" 
+                [showInfo]="false" 
+                [imageUrl]=""
+              ></app-avatar>
+            </button>
+          </app-dropdown>
+      
+         
+          <button *ngIf="!isDesktopView" (click)="onCartClick()">
+            <!-- <app-avatar 
+              [size]="'sm'" 
+              [showInfo]="false" 
+              [imageUrl]="profileData?.informasi_user?.foto_user || ''"
+            ></app-avatar> -->
+            <ic-shopcart/>
+          </button>
+        </div>
+      } @placeholder (minimum 0.5s) {
+       
+        <p-skeleton shape="circle" size="2.5rem" />
+  
+      }
+      
+    
+    </div>
+  </div>
+</ion-header>
+
+<app-locked-acc-modal  [isOpen]="lockedmodal" (onClose)="closeLockModal()">
+
+</app-locked-acc-modal>
+
+<app-costum-modal-v1
+  [isOpen]="showLogoutModal"
+  title="Keluar dari Pakdome"
+  description="Apakah kamu yakin ingin keluar ?"
+  confirmButtonText="Ya, Keluar"
+  cancelButtonText="Tidak"
+  cancelButtonMobileText="Tidak"
+  modalWidth="420px"
+  buttonLayout="horizontal"
+  (onConfirm)="handleConfirm()"
+  (onCancel)="handleCancel()"
+  (onClose)="handleCancel()">
+</app-costum-modal-v1>

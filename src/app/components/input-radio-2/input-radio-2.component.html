@@ -1,0 +1,28 @@
+<label
+  #InputRadio
+  class="flex items-center gap-2 border border-line-default rounded-md p-2 cursor-pointer group transition-all hover:brightness-90"
+  [ngClass]="styleClass">
+  <span
+    class="flex items-center justify-center h-4 w-4 rounded-md border border-line-default shrink-0 group-[.focus]:outline group-[.focus]:outline-1 group-[.focus]:outline-bg-tint-brand"
+    [ngClass]="{
+      'bg-text-primary border-line-brand': radioValue === value,
+      radioStyleClass
+    }">
+    <ng-container *ngIf="radioValue === value">
+      <ic-check-simple class="inline-block h-3 w-3 text-white" />
+    </ng-container>
+  </span>
+  <span
+    class="text-xs font-bold text-text-subtle leading-3"
+    [ngClass]="labelStyleClass">
+    {{ label }}
+  </span>
+  <input
+    #Radio
+    type="radio"
+    class="opacity-0"
+    [value]="radioValue"
+    [(ngModel)]="value"
+    (focus)="InputRadio.classList.add('focus')"
+    (blur)="InputRadio.classList.remove('focus')" />
+</label>

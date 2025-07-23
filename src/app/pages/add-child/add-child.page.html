@@ -1,0 +1,263 @@
+<!-- pages/children/add-child/add-child.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-green-500 to-green-600 pt-12 pb-6">
+    <div class="flex items-center justify-between px-6">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Tambah Anak</h1>
+          <p class="text-green-100 text-sm">Daftarkan anak baru</p>
+        </div>
+      </div>
+      
+      <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+        <ion-icon name="person-outline" class="text-white text-2xl"></ion-icon>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Progress Indicator -->
+      <div class="mb-8">
+        <div class="flex items-center justify-center space-x-2 mb-4">
+          <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-bold">1</span>
+          </div>
+          <div class="w-16 h-1 bg-green-500 rounded"></div>
+          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+            <span class="text-gray-400 text-sm font-bold">2</span>
+          </div>
+        </div>
+        <p class="text-center text-gray-600 text-sm">Informasi Dasar</p>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="addChildForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Profile Image Section -->
+        <div class="text-center space-y-4">
+          <div class="relative inline-block">
+            <!-- Image Preview -->
+            <div *ngIf="imagePreview" class="w-24 h-24 rounded-full overflow-hidden border-4 border-green-500 shadow-lg">
+              <img [src]="imagePreview" alt="Preview" class="w-full h-full object-cover">
+            </div>
+            
+            <!-- Default Avatar -->
+            <div *ngIf="!imagePreview" class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center border-4 border-gray-300">
+              <ion-icon name="person-outline" class="text-gray-400 text-3xl"></ion-icon>
+            </div>
+            
+            <!-- Camera Button -->
+            <button 
+              type="button" 
+              class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors">
+              <ion-icon name="camera-outline" class="text-white"></ion-icon>
+              <input 
+                type="file" 
+                accept="image/*" 
+                (change)="onImageSelected($event)"
+                class="absolute inset-0 opacity-0 cursor-pointer">
+            </button>
+            
+            <!-- Remove Image Button -->
+            <button 
+              *ngIf="imagePreview"
+              type="button"
+              (click)="removeImage()"
+              class="absolute -top-1 -left-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-red-600 transition-colors">
+              ×
+            </button>
+          </div>
+          <p class="text-gray-500 text-sm">Tambahkan foto anak (opsional)</p>
+        </div>
+
+        <!-- Name Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="person-outline" class="text-green-500 mr-2"></ion-icon>
+            Nama Lengkap
+          </label>
+          <input
+            type="text"
+            formControlName="name"
+            placeholder="Masukkan nama lengkap anak"
+            class="form-input"
+            [class.form-input-error]="getFieldError('name')">
+          <p *ngIf="getFieldError('name')" class="text-error">
+            {{ getFieldError('name') }}
+          </p>
+        </div>
+
+        <!-- Birth Date Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="cake-outline" class="text-green-500 mr-2"></ion-icon>
+            Tanggal Lahir
+          </label>
+          <input
+            type="date"
+            formControlName="birthDate"
+            [max]="getMaxDate()"
+            [min]="getMinDate()"
+            class="form-input"
+            [class.form-input-error]="getFieldError('birthDate')">
+          <p *ngIf="getFieldError('birthDate')" class="text-error">
+            {{ getFieldError('birthDate') }}
+          </p>
+          
+          <!-- Age Display -->
+          <div *ngIf="calculatedAge.totalMonths > 0" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p class="text-blue-800 text-sm font-medium">
+              Umur saat ini: {{ formatAgeDisplay() }} ({{ calculatedAge.totalMonths }} bulan)
+            </p>
+          </div>
+        </div>
+
+        <!-- Gender Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="male-outline" class="text-green-500 mr-2"></ion-icon>
+            Jenis Kelamin
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="relative">
+              <input 
+                type="radio" 
+                formControlName="gender" 
+                value="male"
+                class="sr-only">
+              <div class="border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:border-blue-300"
+                   [class.border-blue-500]="addChildForm.get('gender')?.value === 'male'"
+                   [class.bg-blue-50]="addChildForm.get('gender')?.value === 'male'"
+                   [class.border-gray-200]="addChildForm.get('gender')?.value !== 'male'">
+                <div class="text-center">
+                  <ion-icon name="male-outline" 
+                           class="text-2xl mb-2"
+                           [class.text-blue-500]="addChildForm.get('gender')?.value === 'male'"
+                           [class.text-gray-400]="addChildForm.get('gender')?.value !== 'male'"></ion-icon>
+                  <p class="font-medium"
+                     [class.text-blue-700]="addChildForm.get('gender')?.value === 'male'"
+                     [class.text-gray-600]="addChildForm.get('gender')?.value !== 'male'">
+                    Laki-laki
+                  </p>
+                </div>
+              </div>
+            </label>
+            
+            <label class="relative">
+              <input 
+                type="radio" 
+                formControlName="gender" 
+                value="female"
+                class="sr-only">
+              <div class="border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:border-pink-300"
+                   [class.border-pink-500]="addChildForm.get('gender')?.value === 'female'"
+                   [class.bg-pink-50]="addChildForm.get('gender')?.value === 'female'"
+                   [class.border-gray-200]="addChildForm.get('gender')?.value !== 'female'">
+                <div class="text-center">
+                  <ion-icon name="female-outline" 
+                           class="text-2xl mb-2"
+                           [class.text-pink-500]="addChildForm.get('gender')?.value === 'female'"
+                           [class.text-gray-400]="addChildForm.get('gender')?.value !== 'female'"></ion-icon>
+                  <p class="font-medium"
+                     [class.text-pink-700]="addChildForm.get('gender')?.value === 'female'"
+                     [class.text-gray-600]="addChildForm.get('gender')?.value !== 'female'">
+                    Perempuan
+                  </p>
+                </div>
+              </div>
+            </label>
+          </div>
+          <p *ngIf="getFieldError('gender')" class="text-error">
+            {{ getFieldError('gender') }}
+          </p>
+        </div>
+
+        <!-- Notes Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="document-text-outline" class="text-green-500 mr-2"></ion-icon>
+            Catatan (Opsional)
+          </label>
+          <textarea
+            formControlName="notes"
+            rows="3"
+            placeholder="Catatan khusus tentang anak (alergi, preferensi makanan, dll.)"
+            class="form-input resize-none"
+            [class.form-input-error]="getFieldError('notes')"></textarea>
+          <div class="flex justify-between items-center">
+            <p *ngIf="getFieldError('notes')" class="text-error">
+              {{ getFieldError('notes') }}
+            </p>
+            <p class="text-gray-400 text-xs">
+              {{ addChildForm.get('notes')?.value?.length || 0 }}/500 karakter
+            </p>
+          </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+          <h4 class="font-medium text-yellow-800 mb-2">💡 Tips</h4>
+          <ul class="text-yellow-700 text-sm space-y-1">
+            <li>• Pastikan nama anak ditulis dengan benar</li>
+            <li>• Tanggal lahir akan digunakan untuk menghitung kebutuhan gizi</li>
+            <li>• Foto profil membantu identifikasi jika ada lebih dari satu anak</li>
+          </ul>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button
+            type="submit"
+            [disabled]="isLoading || !addChildForm.valid"
+            class="w-full bg-bold-blue-subtle rounded-lg p-3">
+            <span *ngIf="!isLoading" class="flex items-center justify-center">
+              <ion-icon name="save-outline" class="mr-2"></ion-icon>
+              Simpan Data Anak
+            </span>
+            <span *ngIf="isLoading" class="flex items-center justify-center">
+              <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+              Menyimpan...
+            </span>
+          </button>
+        </div>
+
+        <!-- Cancel Button -->
+        <button
+          type="button"
+          (click)="goBack()"
+          class="w-full bg-bold-brand-default rounded-lg mt-3">
+          Batal
+        </button>
+      </form>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-green-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Menyimpan data anak...</span>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

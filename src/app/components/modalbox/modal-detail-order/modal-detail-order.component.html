@@ -1,0 +1,342 @@
+<p-dialog
+    [(visible)]="visibleDetailOrder"
+    [modal]="true"
+    [dismissableMask]="false"
+    (onHide)="handleCloseModalLocal()"
+    appendTo="body"
+    [contentStyle]="{'max-width': '100vw'}"
+    [breakpoints]="{'768px': '95vw', '576px': '95vw'}"
+    [style]="{width: '32rem'}"
+    styleClass="order-detail-dialog"
+>
+    <ng-template pTemplate="headless">
+        <div class="cent">
+            @if (loading) {
+            <div class="loading">
+                <p-skeleton height="4rem"></p-skeleton>
+                <p-skeleton height="7.625rem"></p-skeleton>
+                <p-skeleton height="5.375em"></p-skeleton>
+            </div>
+            } @else if (error) {
+            <button type="button" (click)="handleCloseModalLocal()" class="c">
+                <app-icon-single
+                    [type]="'button-x-gray-dark'"
+                ></app-icon-single>
+            </button>
+            <div class="error">
+                <h3>Opps ada kesalahan</h3>
+                <button
+                    type="button"
+                    class="bg-p-brand-bold-default hover:bg-p-brand-bold-hover active:bg-p-brand-bold-press w-[3s5%] mx-2 py-2 rounded-md text-text-whitte font-semibold text-xs"
+                >
+                    Muat Ulang
+                </button>
+            </div>
+            } @else {
+            <div class="cent__1">
+                <h1 class="!font-bold !text-text-bolder !text-lg">Detail Pesanan</h1>
+                <button
+                    type="button"
+                    (click)="handleCloseModalLocal()"
+                    class="cent__1__2"
+                >
+                    <ic-close-simple-bold
+                        class="w-5 h-5 inline-block text-icon-subtle"
+                    />
+                </button>
+            </div>
+            <div class="cent__body">
+                <!-- dibatalkan -->
+                 <div *ngIf="isCancelled()" class="border border-line-default rounded-lg p-3 bg-surface-default mx-4">
+                    <div class="flex justify-between">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex flex-col gap-[4px]">
+                                <div class="text-sm font-semibold text-text-error">Paketmu Telah Dibatalkan</div>
+                                <div class="text-text-subtler text-xs">Pada <span class="text-text-bolder">{{detailOrder?.updated_at | date : 'dd MMM yyyy HH:mm'}}</span></div>
+                            </div>
+                            <div class="flex flex-col gap-[3px]">
+                                <div class="text-text-subtler leading-[18px] text-[11px]">Alasan Pembatalan:</div>
+                                <div class="text-text-bolder font-semibold leading-4 text-xs"> {{detailOrder?.transaction_note}} </div>
+                            </div>
+                        </div>
+                       <div class="bg-tint-error-default rounded-full p-2 h-fit">
+                        <ic-box-remove/>
+                       </div>
+                    </div>
+                    <div class="bg-icon-subtlest text-text-subtle rounded-md p-[6px] text-[11px] mt-4 leading-4">
+                        Jika Anda memerlukan informasi lebih lanjut mengenai pembatalan ini, silakan hubungi kami. <a href="https://wa.me/6281119922622" target="_blank" class="font-bold text-text-primary">Klik Disini</a>
+                    </div>
+                 </div>
+                 <div *ngIf="isCancelled()" class="border-b-1  mx-4"></div>
+                <!-- NO RESI -->
+                <div class="flex justify-between items-center mx-4 pb-3 border-b-1 border-line-default">
+                    <div class="flex flex-col ">
+                        <p class="!font-medium !text-2xs !text-icon-subtle">No. Resi</p>
+                        <div class="flex items-center gap-1 relative">
+                            <button type="button" class="flex items-center gap-1" (click)="copyToClipboard(detailOrder?.transaction_airwaybill ?? '-', 'resi')">
+                                <ic-clipboard class="w-3.5 h-3.5 text-text-primary"/>
+                                <p class="!font-semibold !text-sm leading-none !text-text-bolder">{{ detailOrder?.transaction_airwaybill ?? '-' }}</p>
+                            </button>
+                            @if (showCopyFeedback && copySuccess === 'resi') {
+                                <span class="text-xs text-green-600 absolute top-0 -right-20">Disalin!</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <button type="button" [disabled]="isPrinting" (click)="togglePrintMenu(); $event.stopPropagation()">
+                                <div *ngIf="showloadingPrint" >
+                                    <div class="w-3.5 h-3.5 animate-spin border-2 border-t-transparent border-blue-500 rounded-full"></div>
+                                  </div>
+                                <app-icon-single *ngIf="!showloadingPrint" [type]=" 'printer-gray'"/>
+                            </button>
+                            <div *ngIf="showPrintMenu" class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50 border border-line-default overflow-hidden">
+                                <div class="p-3 font-medium text-sm text-text-bolder border-b border-line-default">Cetak Resi</div>
+                                <div class="border-t border-line-default">
+                                    <button type="button" (click)="printAwbBySize('a4')" class="w-full text-left p-3 hover:bg-gray-100 text-sm flex flex-col">
+                                        <span class="font-medium text-text-bolder">Kertas A4</span>
+                                    </button>
+                                    <button type="button" (click)="printAwbBySize('ks8')" class="w-full text-left p-3 hover:bg-gray-100 text-sm flex flex-col">
+                                        <span class="font-medium text-text-bolder">Thermal Besar</span>
+                                        <span class="text-xs text-text-subtler">102mm x 127mm</span>
+                                    </button>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NO ORDER -->
+                <div class="flex justify-between items-center mx-4 pb-3 border-b-1 border-line-default">
+                    <div class="flex flex-col ">
+                        <p class="!font-medium !text-2xs !text-icon-subtle">No. Order</p>
+                        <div class="flex items-center gap-1 relative">
+                            <button type="button" class="flex items-center gap-1" (click)="copyToClipboard(detailOrder?.transaction_booking_number ?? '-', 'order')">
+                                <ic-clipboard class="w-3.5 h-3.5 text-text-primary"/>
+                                <p class="!font-semibold !text-sm leading-none !text-text-bolder">{{ detailOrder?.transaction_booking_number ?? '-' }}</p>
+                            </button>
+                            <!-- Shield Icon - Only shown when insurance value exists -->
+                            <ng-container *ngIf="hasInsurance()">
+                                <div class="shield-icon-wrapper relative">
+                                    <shield-check-icon 
+                                        class="cursor-pointer ml-1 text-text-primary icon-align-top" 
+                                        (mouseenter)="handleInsuranceTooltipShow('detail_insurance', $event)"
+                                        (mouseleave)="handleInsuranceTooltipHide('detail_insurance')"
+                                        (click)="toggleInsuranceTooltip('detail_insurance', $event)"/>
+                                    
+                                    <!-- Insurance Tooltip -->
+                                    <div class="tooltip absolute z-50 bg-[#1a2b4b] text-white p-2 rounded-md text-xs whitespace-nowrap" 
+                                         [class.hidden]="!isInsuranceTooltipVisible('detail_insurance')">
+                                        <div class="tooltip-arrow"></div>
+                                        <div class="tooltip-content">
+                                            <div>Diasuransikan {{ detailOrder?.transaction_insured_value || '0' | priceFormat }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            @if (showCopyFeedback && copySuccess === 'order') {
+                                <span class="text-xs text-green-600 absolute top-0 -right-20">Disalin!</span>
+                            }
+                        </div>
+                        <p class="!font-medium !text-xs !text-text-subtler leading-none">{{detailOrder?.last_mile?.last_mile_name ?? '-'}} &bull; <span class="text-text-primary">{{detailOrder?.transaction_service_type ?? '-'}}</span></p>
+                        <p class="!font-medium !text-2xs !text-text-subtle pt-1">Dibuat {{detailOrder?.created_at | date : 'EEEE, dd MMM yyyy HH:mm'}}</p>
+                    </div>
+                    <img 
+                        [src]="logoUrl" 
+                        alt="{{detailOrder?.last_mile?.last_mile_name ?? 'Courier Logo'}}"
+                        class="w-28 h-auto object-cover "
+                        onerror="this.src='assets/logos/default-courier.svg'"
+                    >
+                </div>
+
+                <!-- TRACK RESI -->
+                <div class="flex justify-between  mx-4 pb-3 border-b-1 border-line-default">
+                    <div class="flex flex-col ">
+                        <p class="!font-medium !text-2xs !text-text-subtle">Update Status Terakhir</p>
+                        <p class="!font-semibold !text-xs leading-none  !text-text-bolder">{{ detailOrder?.transaction_status | transactionStatus }}</p>
+                        <p class="!font-medium !text-2xs !text-text-subtler leading-none">{{detailOrder?.updated_at | date : 'dd MMM yyyy HH:mm'}}, {{detailOrder?.updated_at | lastTrackPipe}}</p>
+                       
+                    </div>
+                   
+                        <app-pakdome-button size="sm" theme="general-outline"  (click)="trackResi()">
+                            Track Resi
+                        </app-pakdome-button>
+                  
+                   
+
+                </div>
+
+                <div class="px-4 mt-1">
+                    <h1 ngClass="!font-bold !text-base !text-text-bolder">Info Kiriman</h1>
+                </div>
+
+                <div class="cent__2">
+                    <div class="cent__2__1">
+                        <p>Berat Tertagih</p>
+                        <h1>{{ detailOrder?.transaction_kgs_charge }} Kg</h1>
+                    </div>
+                    <div class="cent__2__2">
+                        <p>Total</p>
+                        <h1>{{ detailOrder?.collie?.length }} Koli</h1>
+                    </div>
+                    <div class="cent__2__3">
+                        <p>Total Nilai Barang</p>
+                        <h1>
+                            {{ calculateTotalValue().toString() | priceFormat }}
+                            
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Looping Koli Disini -->
+                @for (item of detailOrder?.collie ?? []; track $index) {
+                <div class="cent__x scrollbar-hide">
+                    <div class="cent__3">
+                        <div class="cent__3__v">
+                            <div class="cent__3__a">
+                                <div class="absolute__3">
+                                    <h1>Koli {{ $index + 1 }}</h1>
+                                </div>
+                                <div class="cent__3__1">
+                                    <p>Berat Tertagih</p>
+                                    <h1>{{ item.charge }} Kg</h1>
+                                </div>
+                                <div class="cent__3__2">
+                                    <p>Berat</p>
+                                    <h1>{{ item.weight }} Kg</h1>
+                                </div>
+                            </div>
+                            <div class="cent__3__3">
+                                <p>Dimensi</p>
+                                <h1>
+                                    {{ item.length }}x{{ item.width }}x{{
+                                        item.height
+                                    }}
+                                    Cm
+                                </h1>
+                            </div>
+                        </div>
+                        <!-- looping disini -->
+                        @for (items of item.collie_items; track $index;) {
+                        <div class="cent__3__looping__container">
+                            <div class="cent_3_lop">
+                                <div class="cent_3_lop__1">
+                                    <h1>{{ items.desc }}</h1>
+                                    <p>{{ items.category.name }}</p>
+                                </div>
+                                <div class="cent_3_lop__2">
+                                    <p>
+                                        {{ items.qty }}
+                                        {{ items.unit.name }}
+                                    </p>
+                                    <h1>{{ items.value | priceFormat }}</h1>
+                                    
+                                </div>
+                            </div>
+                           
+                           
+                        </div>
+                        }
+                        <div class="flex justify-between p-2 text-xs">
+                            <p class="!font-medium !text-text-subtler">Jumlah Nilai Barang</p>
+                            <p class="!text-text-subtle !font-bold">{{ calculateKoliTotalValue(item).toString() | priceFormat }}</p>
+
+                        </div>
+                    </div>
+                </div>
+                }
+    
+                <div class="cent__4">
+                    <div class="absolute__4">
+                        <h1>Alamat Pickup</h1>
+                    </div>
+                    <h1>{{ detailOrder?.pickup_data?.name ?? '' }}</h1>
+                    <p>{{ detailOrder?.pickup_data?.phone ?? '' }}</p>
+                    <p>
+                        {{ detailOrder?.pickup_data?.address?.address1 ?? '' }}
+                        {{ detailOrder?.pickup_data?.address?.address2 ? ', ' + detailOrder?.pickup_data?.address?.address2 : '' }}
+                    </p>
+                    <p>
+                        {{ detailOrder?.pickup_data?.address?.subdistrict ?? '' }}, 
+                        {{ detailOrder?.pickup_data?.address?.district ?? '' }}, 
+                        {{ detailOrder?.pickup_data?.address?.city ?? '' }}, 
+                        {{ detailOrder?.pickup_data?.address?.province ?? '' }} 
+                        {{ detailOrder?.pickup_data?.address?.postal ?? '' }}
+                    </p>
+                </div>
+                <div class="cent__5">
+                    <div class="absolute__4">
+                        <h1>Penerima</h1>
+                    </div>
+                    <h1>{{ detailOrder?.transaction_to_name ?? '' }}</h1>
+                    <p>{{ detailOrder?.transaction_to_phone ?? '' }}</p>
+                    <p>
+                        {{ detailOrder?.transaction_to_address1 ?? '' }}
+                    </p>
+                </div>
+                <ng-container>
+                    <div class="flex flex-col text-text-subtle px-6 py-3 gap-3 bg-surface-default rounded-lg m-4">
+                      <h1 class="font-semibold">Rincian Tagihan</h1>
+                      <div class="flex flex-col gap-2">
+                        <svg class="w-full h-2 my-1" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="0" y1="1" x2="100%" y2="1" stroke="#0000001a" stroke-width="2" stroke-dasharray="15 10" />
+                          </svg>
+                          <div  class="flex justify-between text-text-subtler font-medium text-sm">
+                            <p>Tipe Pembayaran</p>
+                            <span class="text-text-bolder font-bold">NON - COD</span>
+                          </div>
+                          <svg class="w-full h-2 my-1" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="0" y1="1" x2="100%" y2="1" stroke="#0000001a" stroke-width="2" stroke-dasharray="15 10" />
+                          </svg>
+                        <div class="flex justify-between text-text-subtler font-medium text-sm">
+                          <p>Ongkir</p>
+                          <span class="text-text-bolder font-medium"> {{ (detailOrder?.transaction_shipping_cost ?? 0).toString() | priceFormat }} </span>
+                        </div>
+                        <!-- Only show insurance cost when insurance is checked and cost is available -->
+                        <div *ngIf="hasInsurance()"  class="flex justify-between text-text-subtler font-medium text-sm">
+                          <p>Asuransi</p>
+                          <span class="text-text-bolder font-medium">{{ (detailOrder?.transaction_insurance_cost || 0).toString() | priceFormat }}</span>
+                        </div>
+                
+                        <svg class="w-full h-2 my-1" xmlns="http://www.w3.org/2000/svg">
+                          <line x1="0" y1="1" x2="100%" y2="1" stroke="#0000001a" stroke-width="2" stroke-dasharray="15 10" />
+                        </svg>
+                
+                        <div class="flex justify-between font-bold mb-2">
+                          <p class="leading-[1.5rem] w-1/2">Yang Harus Dibayar Pelanggan</p>
+                          <span class="text-text-bolder font-bold">{{ detailOrder?.transaction_price ?? '' | priceFormat }}</span>
+                        </div>
+                        
+                
+                        <!-- diskon section -->
+                        <div class="relative grid grid-cols-4 justify-between bg-tint-green-default rounded-lg py-2 pr-2 pl-[18px] items-center overflow-hidden">
+                          <!-- Garis hijau vertikal di kiri tengah -->
+                          <div class="absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-[30px] bg-green-600 rounded-r-md"></div>
+                        
+                          <!-- Disc-shape di pojok kiri atas, posisinya seperti background -->
+                          <div class="absolute top-0 left-0">
+                            <disc-shape class="" />
+                          </div>
+                        
+                          <p class="col-span-2 !text-sm !text-text-subtle !font-medium z-10">Keuntungan Bersih yang Kamu dapatkan</p>
+                        
+                          <div class="col-span-2 justify-end text-end z-10">
+                            <p class="!text-text-success !font-bold !text-xl">{{ discountAmount.toString() | priceFormat }}</p>
+                            <div class="bg-text-success rounded-[4px] p-1 w-fit ml-auto">
+                              <p class="!text-tint-green-default text-xs">{{ selectedCourierDiscount }}% dari Ongkir</p>
+                            </div>            
+                          </div>
+                        </div>
+                        
+                
+                      </div>
+                    </div>
+                  </ng-container>
+            </div>
+            }
+          
+        </div>
+     
+    </ng-template>
+</p-dialog>

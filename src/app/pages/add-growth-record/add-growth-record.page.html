@@ -1,0 +1,257 @@
+<!-- pages/growth/add-growth-record/add-growth-record.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-blue-500 to-blue-600 pt-12 pb-6">
+    <div class="flex items-center justify-between px-6">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Catat Pertumbuhan</h1>
+          <p class="text-blue-100 text-sm">{{ child?.name }} - {{ formatAge() }}</p>
+        </div>
+      </div>
+      
+      <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+        <ion-icon name="scale-outline" class="text-white text-2xl"></ion-icon>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Progress Indicator -->
+      <div class="mb-8">
+        <div class="flex items-center justify-center space-x-2 mb-4">
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-bold">1</span>
+          </div>
+          <div class="w-16 h-1 bg-blue-500 rounded"></div>
+          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+            <span class="text-gray-400 text-sm font-bold">2</span>
+          </div>
+        </div>
+        <p class="text-center text-gray-600 text-sm">Input Pengukuran</p>
+      </div>
+
+      <!-- Date Info -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+        <div class="flex items-center space-x-3">
+          <ion-icon name="calendar-outline" class="text-blue-600 text-xl"></ion-icon>
+          <div>
+            <p class="font-medium text-blue-800">Tanggal Pengukuran</p>
+            <p class="text-blue-600 text-sm">{{ getTodayDate() | date:'fullDate' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="growthForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Weight Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="scale-outline" class="text-blue-500 mr-2"></ion-icon>
+            Berat Badan (kg)
+          </label>
+          <div class="relative">
+            <input
+              type="number"
+              step="0.1"
+              min="1"
+              max="100"
+              formControlName="weight"
+              placeholder="Contoh: 12.5"
+              (input)="onNumberInput($event, 'weight')"
+              class="form-input pr-12"
+              [class.form-input-error]="getFieldError('weight')">
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">kg</span>
+          </div>
+          <p *ngIf="getFieldError('weight')" class="text-error">
+            {{ getFieldError('weight') }}
+          </p>
+          <p class="text-gray-500 text-xs">Rentang normal: 1-100 kg</p>
+        </div>
+
+        <!-- Height Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="resize-outline" class="text-blue-500 mr-2"></ion-icon>
+            Tinggi Badan (cm)
+          </label>
+          <div class="relative">
+            <input
+              type="number"
+              step="0.1"
+              min="30"
+              max="200"
+              formControlName="height"
+              placeholder="Contoh: 85.5"
+              (input)="onNumberInput($event, 'height')"
+              class="form-input pr-12"
+              [class.form-input-error]="getFieldError('height')">
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">cm</span>
+          </div>
+          <p *ngIf="getFieldError('height')" class="text-error">
+            {{ getFieldError('height') }}
+          </p>
+          <p class="text-gray-500 text-xs">Rentang normal: 30-200 cm</p>
+        </div>
+
+        <!-- Head Circumference Field (Optional) -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="analytics-outline" class="text-blue-500 mr-2"></ion-icon>
+            Lingkar Kepala (cm) - Opsional
+          </label>
+          <div class="relative">
+            <input
+              type="number"
+              step="0.1"
+              min="30"
+              max="70"
+              formControlName="headCircumference"
+              placeholder="Contoh: 48.5"
+              (input)="onNumberInput($event, 'headCircumference')"
+              class="form-input pr-12"
+              [class.form-input-error]="getFieldError('headCircumference')">
+            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">cm</span>
+          </div>
+          <p *ngIf="getFieldError('headCircumference')" class="text-error">
+            {{ getFieldError('headCircumference') }}
+          </p>
+          <p class="text-gray-500 text-xs">Biasanya diukur untuk anak di bawah 2 tahun</p>
+        </div>
+
+        <!-- BMI Calculation Display -->
+        <div *ngIf="calculatedBMI > 0" class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-4">
+          <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+            <ion-icon name="analytics-outline" class="text-green-600 mr-2"></ion-icon>
+            Hasil Perhitungan
+          </h4>
+          
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="text-center">
+              <p class="text-sm text-gray-600 mb-1">BMI</p>
+              <p class="text-2xl font-bold text-gray-800">{{ calculatedBMI }}</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-gray-600 mb-1">Status Gizi</p>
+              <span class="inline-block px-3 py-1 rounded-full text-sm font-medium" [ngClass]="getNutritionStatusBadgeColor()">
+                {{ getNutritionStatusText() }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Recommendations -->
+          <div *ngIf="nutritionStatus" class="bg-white rounded-lg p-3">
+            <h5 class="font-medium text-gray-700 mb-2">Rekomendasi:</h5>
+            <ul class="space-y-1">
+              <li *ngFor="let recommendation of getGrowthRecommendations()" class="text-sm text-gray-600 flex items-start">
+                <ion-icon name="checkmark-circle-outline" class="text-green-500 mr-2 mt-0.5 flex-shrink-0"></ion-icon>
+                {{ recommendation }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Validation Warnings -->
+        <div *ngIf="validationWarnings.length > 0" class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+          <h4 class="font-medium text-yellow-800 mb-2 flex items-center">
+            <ion-icon name="warning-outline" class="text-yellow-600 mr-2"></ion-icon>
+            Perhatian
+          </h4>
+          <ul class="space-y-1">
+            <li *ngFor="let warning of validationWarnings" class="text-sm text-yellow-700">
+              • {{ warning }}
+            </li>
+          </ul>
+          <p class="text-xs text-yellow-600 mt-2">Pastikan pengukuran sudah benar sebelum menyimpan.</p>
+        </div>
+
+        <!-- Notes Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="document-text-outline" class="text-blue-500 mr-2"></ion-icon>
+            Catatan (Opsional)
+          </label>
+          <textarea
+            formControlName="notes"
+            rows="3"
+            placeholder="Catatan pengukuran (kondisi anak, alat ukur yang digunakan, dll.)"
+            class="form-input resize-none"
+            [class.form-input-error]="getFieldError('notes')"></textarea>
+          <div class="flex justify-between items-center">
+            <p *ngIf="getFieldError('notes')" class="text-error">
+              {{ getFieldError('notes') }}
+            </p>
+            <p class="text-gray-400 text-xs">
+              {{ growthForm.get('notes')?.value?.length || 0 }}/500 karakter
+            </p>
+          </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <h4 class="font-medium text-blue-800 mb-2">💡 Tips Pengukuran</h4>
+          <ul class="text-blue-700 text-sm space-y-1">
+            <li>• Ukur berat tanpa pakaian atau dengan pakaian minimal</li>
+            <li>• Ukur tinggi dengan posisi berdiri tegak (>2 tahun) atau berbaring (0-2 tahun)</li>
+            <li>• Gunakan timbangan dan pengukur tinggi yang akurat</li>
+            <li>• Catat pada waktu yang sama setiap kali mengukur</li>
+          </ul>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button
+            type="submit"
+            [disabled]="isLoading || !growthForm.valid"
+            class="w-full btn-primary">
+            <span *ngIf="!isLoading" class="flex items-center justify-center">
+              <ion-icon name="save-outline" class="mr-2"></ion-icon>
+              Simpan Catatan Pertumbuhan
+            </span>
+            <span *ngIf="isLoading" class="flex items-center justify-center">
+              <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+              Menyimpan...
+            </span>
+          </button>
+        </div>
+
+        <!-- Cancel Button -->
+        <button
+          type="button"
+          (click)="goBack()"
+          class="w-full btn-secondary mt-3">
+          Batal
+        </button>
+      </form>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Menyimpan catatan pertumbuhan...</span>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

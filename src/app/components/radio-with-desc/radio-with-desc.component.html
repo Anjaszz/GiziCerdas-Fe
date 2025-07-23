@@ -1,0 +1,103 @@
+<div class="inline-flex items-start text-sm">
+  <label 
+    class="relative flex items-center cursor-pointer" 
+    [attr.for]="radioId">
+    <input
+      [id]="radioId"
+      type="radio"
+      [name]="name"
+      [value]="value"
+      [checked]="checked"
+      (change)="onInputChange($event)"
+      [disabled]="disabled"
+      class="peer cursor-pointer appearance-none rounded-full border transition-all focus:ring-2 focus:ring-bold-brand-default focus:ring-offset-2"
+      [ngClass]="[
+        radioSizeClass.radio, 
+        radioThemeClass.unchecked, 
+        radioThemeClass.checked,
+        styleClass
+      ]"
+    />
+    <span 
+      class="absolute bg-surface-default rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      [ngClass]="[radioSizeClass.dot]">
+    </span>
+  </label>
+  
+  <!-- Default variant -->
+  @if (variant === 'default') {
+    <div class="flex-col ml-2 items-start">
+      @if (label) {
+        <label 
+          class="text-text-bolder text-sm cursor-pointer font-medium flex items-center gap-2" 
+          [attr.for]="radioId"
+          [ngClass]="[radioSizeClass.label]">
+          <!-- Added icon component with dynamic name -->
+          <ng-container *ngIf="iconName">
+            <ng-container [ngSwitch]="iconName">
+              <ic-bca *ngSwitchCase="'bca'"></ic-bca>
+              <ic-bri *ngSwitchCase="'bri'"></ic-bri>
+        
+            </ng-container>
+          </ng-container>
+          {{ label }}
+        </label>
+      }
+      <p 
+        class="text-text-subtler text-sm" 
+        [attr.for]="radioId">
+        {{ desc }}
+      </p>
+    </div>
+  }
+
+  <!-- No description variant -->
+  @if (variant === 'no-desc') {
+    <div class="ml-2">
+      @if (label) {
+        <label 
+          class="text-text-bolder text-sm cursor-pointer font-medium flex items-center gap-2" 
+          [attr.for]="radioId"
+          [ngClass]="[radioSizeClass.label]">
+          <!-- Added icon component with dynamic name -->
+          <ng-container *ngIf="iconName">
+            <ng-container [ngSwitch]="iconName">
+              <ic-bca *ngSwitchCase="'bca'"></ic-bca>
+              <ic-bri *ngSwitchCase="'bri'"></ic-bri>
+             
+            </ng-container>
+          </ng-container>
+          {{ label }}
+        </label>
+      }
+    </div>
+  }
+
+  <!-- Inline description variant -->
+  @if (variant === 'inline-desc') {
+    <div class="flex items-center ml-2 gap-2">
+      @if (label) {
+        <label 
+          class="text-text-bolder text-sm cursor-pointer font-medium flex items-center gap-2" 
+          [attr.for]="radioId"
+          [ngClass]="[radioSizeClass.label]">
+          <!-- Added icon component with dynamic name -->
+          <ng-container *ngIf="iconName">
+            <ng-container [ngSwitch]="iconName">
+              <ic-bca *ngSwitchCase="'bca'"></ic-bca>
+              <ic-bri *ngSwitchCase="'bri'"></ic-bri>
+            </ng-container>
+          </ng-container>
+          {{ label }}
+        </label>
+      }
+      @if (desc) {
+        <p 
+          class="text-text-subtlest text-sm" 
+          [attr.for]="radioId">
+          {{ desc }}
+        </p>
+      }
+    </div>
+  }
+</div>

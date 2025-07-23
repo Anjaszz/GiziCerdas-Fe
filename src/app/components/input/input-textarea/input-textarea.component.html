@@ -1,0 +1,33 @@
+<div
+    class=""
+    >
+    <div class="pb-1">
+        <div #Label>
+            <ng-content select="[slot=label]"></ng-content>
+        </div>
+        <div *ngIf="Label.children.length === 0" class="flex items-center">
+            <h1 class="font-inter font-semibold text-2xs text-text-subtle">{{ label }} <span class="text-text-subtler text-xs font-inter font-normal">{{ labelInfo }}</span></h1>
+            <p class="font-inter font-semibold text-2xs text-text-subtle">{{ labelOptional }}</p>
+        </div>
+    </div>
+    <div 
+        [ngClass]="error ? 'border-text-error' : 'border-line-default focus-within:border-text-discovery'"
+        class="flex items-center border-1 bg-text-white  rounded-md p-2 pt-1  duration-150 transition-colors min-w-[303px]"
+    >
+        <textarea
+            class="text-text-subtle text-sm font-inter font-normal transition-all w-full focus-within:outline-none resize-none"
+            [ngClass]="error ? 'placeholder:text-text-error' : 'placeholder:text-text-subtlest'" 
+            [placeholder]="placeholder"
+            [rows]="rows"
+            [readOnly]="readonly"
+            [(ngModel)]="value"
+        ></textarea>
+    </div>
+    <div class="field-default__footer pt-1">
+        <div #Helper>
+            <ng-content select="[slot=helper]"></ng-content>
+        </div>
+        <ng-content select="[error-1]"/>
+       
+    </div>
+</div>

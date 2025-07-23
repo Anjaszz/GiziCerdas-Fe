@@ -1,0 +1,7 @@
+{
+  "name": "Pakdome",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

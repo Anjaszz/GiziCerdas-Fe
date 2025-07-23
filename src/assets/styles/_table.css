@@ -1,0 +1,20 @@
+.table-order-list {
+    display: grid;
+    grid-template-columns: .2fr .2fr .2fr .1fr .1fr .2fr;
+    border: 1.5px solid var(--line-default);
+    border-top: 0;
+}
+
+.table-bill-recap-list {
+    display: grid;
+    grid-template-columns: .15fr .15fr .1fr .1fr .1fr .2fr .2fr;
+    border: 1.5px solid var(--line-default);
+    border-top: 0;
+}
+
+.table-client-list {
+    display: grid;
+    grid-template-columns: .2fr .2fr .1fr .2fr .3fr;
+    border: 1.5px solid var(--line-default);
+    border-top: 0;
+}

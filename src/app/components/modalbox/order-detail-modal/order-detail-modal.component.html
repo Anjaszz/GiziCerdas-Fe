@@ -1,0 +1,243 @@
+<div 
+*ngIf="isOpen && orderData"
+class="modal-backdrop"
+(click)="onBackdropClick($event)">
+<div 
+  class="modal-content max-h-[100vh] sm:max-h-[600px] w-full sm:w-[480px] overflow-hidden flex flex-col"
+  (click)="$event.stopPropagation()">
+  
+  <!-- Header - Fixed Position -->
+   <div class="sm:hidden flex gap-2 text-text-subtle p-4 text-lg font-bold items-center">
+    <ic-arrow-left  (click)="onClose()" />
+    <h1>Detail Pesanan</h1>
+   </div>
+   <div class="hidden sm:!flex justify-between items-center p-4 border-b border-line-default">
+    <h2 class="text-lg font-bold text-text-bolder">Detail Pesanan</h2>
+    <div 
+      class="p-2 text-icon-subtle cursor-pointer hover:bg-surface-sunken rounded-full"
+      (click)="onClose()">
+      <close-icon color="currentColor"></close-icon>
+    </div>
+  </div>
+  
+  <!-- Content wrapper with scrolling - Starting from Order Number -->
+  <div class="overflow-y-auto flex-1">
+  
+  <!-- Order Number & Courier -->
+  <div class="p-4 flex justify-between items-start border-b border-line-default">
+    <div>
+      <p class="text-xs text-text-subtler mb-1">No. Order</p>
+      <div class="flex gap-1 items-center relative">
+        <p class="text-base font-semibold text-text-bolder">{{ orderData.id }}</p>
+        
+        <!-- Insurance Shield Icon with Tooltip - Only displayed when insurance value exists -->
+        <div *ngIf="orderData.insuranceValue && orderData.insuranceValue > 0" class="tooltip-wrapper relative inline-block mb-3">
+          <shield-check-icon class="cursor-pointer ml-1" 
+            (mouseenter)="showInsuranceTooltip = true"
+            (mouseleave)="showInsuranceTooltip = false"
+            (click)="toggleInsuranceTooltip()"/>
+          
+          <!-- Tooltip -->
+          <div class="tooltip absolute z-50 bg-[#1a2b4b] text-white p-2 rounded-md text-sm whitespace-nowrap" 
+              [class.hidden]="!showInsuranceTooltip">
+            <div class="tooltip-arrow"></div>
+            <div class="tooltip-content">
+              <div>Diasuransikan Rp{{ formatNumber(orderData.insuranceValue) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-sm text-text-subtler">
+        {{ orderData.courier }} <span class="text-bold-brand-default">• {{ orderData.serviceType }}</span>
+      </p>
+    </div>
+    <div *ngIf="orderData.logoSrc" class="w-16 ">
+      <img [src]="orderData.logoSrc" alt="Courier logo" class="w-full h-auto">
+    </div>
+  </div>
+    <!-- Shipping Information -->
+    <div class="p-4 border-b border-line-default">
+      <h3 class="text-base font-bold text-text-bolder mb-3">Info Kiriman</h3>
+      
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div>
+          <p class="text-[11px] font-medium text-text-subtler mb-1">Berat Tertagih</p>
+          <p class="text-xs text-text-bolder font-semibold">{{ orderData.totalWeight }} Kg</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-medium text-text-subtler mb-1">Total</p>
+          <p class="text-xs text-text-bolder font-semibold">{{ orderData.totalPackets }} Koli</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-medium text-text-subtler mb-1">Total Nilai Barang</p>
+          <p class="text-xs text-text-subtler font-bold">Rp {{ formatNumber(totalItemsValue) }}</p>
+        </div>
+      </div>
+      
+      <!-- Packets -->
+      <div *ngFor="let packet of orderData.packets; let i = index" class="mb-6 last:mb-0">
+        <div class="grid grid-cols-4 gap-4 mb-2 bg-surface-default text-text-subtle rounded-lg p-2">
+          <div>
+            <p class="text-[11px] font-medium text-text-subtler mb-1">Berat Tertagih</p>
+            <p class="text-xs text-text-bolder font-semibold">{{ packet.weightShown }} Kg</p>
+          </div>
+          <div>
+            <p class="text-[11px] font-medium text-text-subtler mb-1">Berat</p>
+            <p class="text-xs text-text-bolder font-semibold">{{ packet.weight }} Kg</p>
+          </div>
+          <div>
+            <p class="text-[11px] font-medium text-text-subtler mb-1">Dimensi</p>
+            <p class="text-xs text-text-bolder font-semibold">{{ packet.dimension }}</p>
+          </div>
+          <div class="bg-surface-sunken text-center rounded-b-lg -m-2 px-5 py-2 w-fit">
+            <p class="text-sm font-semibold text-text-bolder">Koli {{ i + 1 }}</p>
+          </div>
+          <div class="col-span-4 p-2">
+            <!-- Items in the packet -->
+            <div *ngFor="let item of packet.items" class="flex justify-between p-2 bg-surface-sunken rounded-md mb-1">
+              <div class="flex flex-col gap-2">
+                <div class="text-xs font-bold text-text-subtler">{{ item.name }}</div>
+                <div class="text-xs font-medium text-text-subtler">{{ item.type }}</div>
+              </div>
+             
+              <div class="text-xs font-bold text-text-subtler flex flex-col gap-2 text-end">
+                <p> {{ item.quantity }} {{ item.unit || '-' }}</p>
+              <p>  Rp{{ formatNumber(item.price) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-between p-2 text-xs mt-2 border-t border-line-default pt-2">
+          <p class="font-medium text-text-subtler">Jumlah Nilai Barang</p>
+          <p class="text-text-subtle font-bold">Rp {{ formatNumber(calculatePacketValue(packet)) }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sender and Recipient Information -->
+    <div class="flex flex-col p-4 gap-2">
+      <!-- Sender Information -->
+      <div class="p-3 bg-surface-default rounded-lg text-xs text-text-subtler">
+       <div class="flex justify-between">
+        <div class="text-xs font-bold text-text-bolder">
+          {{ orderData.sender.pickupData?.name  }}
+        </div>
+        <div class="text-xs font-bold self-end bg-surface-sunken p-2 -mt-3 rounded-b-lg">Pickup</div>
+       </div>
+        <div class="font-medium text-[11px]">
+          {{ orderData.sender.pickupData?.phone }}
+        </div>
+        <div class="font-medium text-[11px] leading-4">
+          <!-- Gunakan alamat dari pickup_data jika tersedia -->
+          <ng-container *ngIf="orderData.sender.pickupData?.address; else originalSenderAddress">
+            {{ orderData.sender.pickupData?.address?.address1 }}
+            {{ orderData.sender.pickupData?.address?.address2 ? ', ' + orderData.sender.pickupData?.address?.address2 : '' }}<br>
+            {{ orderData.sender.pickupData?.address?.subdistrict }}, 
+            {{ orderData.sender.pickupData?.address?.district }}, 
+            {{ orderData.sender.pickupData?.address?.city }}, 
+            {{ orderData.sender.pickupData?.address?.province }} 
+            {{ orderData.sender.pickupData?.address?.postal }}
+          </ng-container>
+          
+          <ng-template #originalSenderAddress>
+            {{ orderData.sender.address }}
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Recipient Information -->
+      <div class="p-3 bg-surface-default rounded-lg text-xs text-text-subtler">
+        <div class="flex justify-between">
+          <div class="text-xs font-bold text-text-bolder">{{ orderData.recipient.name }}</div>
+          <div class="text-xs font-bold self-end bg-surface-sunken p-2 -mt-3 rounded-b-lg">Penerima</div>
+        </div>
+        <div class="font-medium text-[11px]">{{ orderData.recipient.phone }}</div>
+        <div class="font-medium text-[11px] leading-4">
+          <!-- Tampilkan alamat lengkap jika tersedia -->
+          <ng-container *ngIf="orderData.recipient.district && orderData.recipient.province; else basicRecipientAddress">
+            {{ orderData.recipient.address }}<br>
+            {{ orderData.recipient.subdistrict }}, 
+            {{ orderData.recipient.district }}, 
+            {{ orderData.recipient.city }}, 
+            {{ orderData.recipient.province }} 
+            {{ orderData.recipient.postal }}
+          </ng-container>
+          
+          <ng-template #basicRecipientAddress>
+            {{ orderData.recipient.address }}
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rincian Tagihan -->
+    <div class="flex flex-col text-text-subtle px-4 py-3 gap-3 bg-surface-default rounded-lg m-4">
+      <h1 class="font-semibold">Rincian Tagihan</h1>
+      <div class="flex flex-col gap-2">
+        <svg class="w-full h-2 my-1" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="1" x2="100%" y2="1" stroke="#0000001a" stroke-width="2" stroke-dasharray="15 10" />
+        </svg>
+        <div class="flex justify-between text-text-subtler font-medium text-sm">
+          <p>Tipe Pembayaran</p>
+          <span class="text-text-bolder font-bold">NON - COD</span>
+        </div>
+        <svg class="w-full h-2 my-1" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="1" x2="100%" y2="1" stroke="#0000001a" stroke-width="2" stroke-dasharray="15 10" />
+        </svg>
+        <div class="flex justify-between text-text-subtler font-medium text-sm">
+          <p>Ongkir</p>
+          <span class="text-text-bolder font-medium">{{ formatNumber(orderData.totalPrice - (orderData.insuranceValue || 0)) }}</span>
+        </div>
+        <!-- Only show insurance cost when insurance is available -->
+        <div *ngIf="orderData.insuranceValue && orderData.insuranceValue > 0" class="flex justify-between text-text-subtler font-medium text-sm">
+          <p>Asuransi</p>
+          <span class="text-text-bolder font-medium">{{ formatNumber(orderData.insuranceValue) }}</span>
+        </div>
+
+        <svg class="w-full h-2 my-1" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="1" x2="100%" y2="1" stroke="#0000001a" stroke-width="2" stroke-dasharray="15 10" />
+        </svg>
+
+        <div class="flex justify-between font-bold mb-2">
+          <p class="leading-[1.5rem] w-1/2">Yang Harus Dibayar Pelanggan</p>
+          <span class="text-text-bolder font-bold">{{ formatNumber(orderData.totalPrice) }}</span>
+        </div>
+        
+        <!-- Diskon section -->
+        <div class="relative grid grid-cols-4 justify-between bg-tint-green-default rounded-lg py-2 pr-2 pl-[18px] items-center overflow-hidden">
+          <!-- Garis hijau vertikal di kiri tengah -->
+          <div class="absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-[30px] bg-green-600 rounded-r-md"></div>
+        
+          <!-- Disc-shape di pojok kiri atas -->
+          <div class="absolute top-0 left-0">
+            <disc-shape class="" />
+          </div>
+        
+          <p class="col-span-2 text-sm text-text-subtle font-medium z-10">Keuntungan Bersih yang Kamu dapatkan</p>
+        
+          <div class="col-span-2 justify-end text-end z-10">
+            <p class="text-text-success font-bold text-xl">
+              <ng-container *ngIf="isLoadingDiscount; else discountBlock">
+                <span class="inline-block w-4 h-4 border-2 border-t-transparent border-text-success rounded-full animate-spin"></span>
+              </ng-container>
+              <ng-template #discountBlock>
+                {{ formatNumber(discountAmount) }}
+              </ng-template>
+            </p>
+            <div class="bg-text-success rounded-[4px] p-1 w-fit ml-auto">
+              <p class="text-tint-green-default text-xs">
+                <ng-container *ngIf="isLoadingDiscount; else percentValue">
+                  <span class="inline-block w-3 h-3 border-2 border-t-transparent border-tint-green-default rounded-full animate-spin"></span>
+                </ng-container>
+                <ng-template #percentValue>
+                  {{ selectedCourierDiscount }}% dari Ongkir
+                </ng-template>
+              </p>
+            </div>            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

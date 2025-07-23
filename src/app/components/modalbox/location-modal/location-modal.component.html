@@ -1,0 +1,162 @@
+<!-- Modal Style -->
+<div *ngIf="variant === 'modal' && isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div #modalContainer 
+       class="mobile-modal bg-white sm:rounded-3xl rounded-t-3xl w-[515px] h-[660px] flex flex-col">
+    <!-- Drag Indicator - Only this area should be draggable -->
+    <div #dragIndicator
+         class="sm:hidden w-full flex justify-center pt-2 pb-1 cursor-pointer"
+         (touchstart)="onTouchStart($event)"
+         (touchmove)="onTouchMove($event)"
+         (touchend)="onTouchEnd($event)">
+      <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
+    </div>
+    <ng-container [ngTemplateOutlet]="locationContent"></ng-container>
+  </div>
+</div>
+
+<!-- Dropdown Style -->
+<div *ngIf="variant === 'dropdown' && isOpen" 
+     class="sm:absolute sm:left-0 sm:top-full sm:mt-1 fixed inset-0 z-50 flex sm:block">
+  <!-- Overlay untuk mobile -->
+  <div class="sm:hidden fixed inset-0 bg-black bg-opacity-50"></div>
+  
+  <!-- Content container -->
+  <div #modalContainer
+       class="sm:w-full w-full sm:static fixed bottom-0 bg-white sm:rounded-lg sm:shadow-lg rounded-t-3xl border border-line-default">
+    <!-- Drag Indicator - Only this area should be draggable -->
+    <div #dragIndicator
+         class="sm:hidden w-full flex justify-center pt-2 pb-1 cursor-pointer"
+         (touchstart)="onTouchStart($event)"
+         (touchmove)="onTouchMove($event)"
+         (touchend)="onTouchEnd($event)">
+      <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
+    </div>
+    <ng-container [ngTemplateOutlet]="locationContent"></ng-container>
+  </div>
+</div>
+
+<!-- Shared Content Template -->
+<ng-template #locationContent>
+  <div  *ngIf="variant === 'modal'" class="flex justify-center items-center p-4 relative">
+    <h2 class="text-2xl font-bold text-text-bolder w-full text-center">{{ title }}</h2>
+    <button 
+      (click)="close()" 
+      class="text-text-subtle hover:text-text-bolder absolute right-4">
+      <close-icon></close-icon>
+    </button>
+  </div>
+
+  <div class="px-4 pb-4">
+    <app-input-text
+      [bgWhite]="true"
+      [placeholder]="getSearchPlaceholder()"
+      [(ngModel)]="searchQuery"
+      mode="text"
+      class="w-full"
+      (enterApi)="onSearch()"
+      [enterIcon]="true"
+      [deleteIcon]="showDeleteIcon"
+    />
+  </div>
+
+  <div class="pl-8 pr-8 pb-4 border-b border-line-default text-sm text-text-subtle">
+    <ng-container *ngIf="!selectedPath">
+      <div class="flex items-center">
+        <span class="text-bold-brand-default">Pilih Provinsi</span>
+      </div>
+    </ng-container>
+    
+<ng-container *ngIf="selectedPath">
+  <div class="flex items-center w-full">
+    <div class="flex-shrink overflow-x-auto">
+      <!-- Membuat elemen yang bisa diklik untuk setiap bagian jalur -->
+      <ng-container *ngFor="let part of pathParts; let i = index">
+        <span *ngIf="i > 0" class="text-text-subtle mx-1">/</span>
+        <span 
+          class="truncate inline-block align-middle cursor-pointer hover:text-bold-brand-default" 
+          (click)="navigateToPath(i)"
+          [ngClass]="{'text-bold-brand-default': i === pathParts.length - 1}"
+          title="{{ part }}">
+          {{ part }}
+        </span>
+      </ng-container>
+    </div>
+    <ng-container *ngIf="!isComplete">
+      <div class="flex-shrink-0 inline-flex items-center">
+        <span class="text-text-subtle mx-1">/</span>
+        <span class="text-bold-brand-default whitespace-nowrap">{{ getNextStepPrompt() }}</span>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>
+  </div>
+
+  <div [class]="variant === 'modal' ? 'flex-1 overflow-y-auto' : 'max-h-[300px] overflow-y-auto'">
+    <!-- Skeleton loading state -->
+    <div *ngIf="isLoading">
+      <div class="py-3 px-8 border-b border-line-default" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+        <p-skeleton width="100%" height="24px" styleClass="mb-2"></p-skeleton>
+      </div>
+    </div>
+    
+    <!-- Actual location items -->
+    <div
+      *ngIf="!isLoading"
+      class="w-full"
+    >
+      <div
+        *ngFor="let item of filteredLocations"
+        (click)="selectItem(item)"
+        class="py-3 px-8 border-b border-line-default hover:text-text-white hover:bg-bold-brand-default cursor-pointer text-text-subtle flex items-center justify-between"
+      >
+        <span class="tracking-custom-wide text-base">{{ item }}</span>
+        <svg *ngIf="currentStep === 'postalCode' && isSelected(item)" 
+             xmlns="http://www.w3.org/2000/svg" 
+             width="20" 
+             height="20" 
+             viewBox="0 0 24 24" 
+             fill="none" 
+             stroke="currentColor" 
+             stroke-width="2" 
+             class="text-bold-brand-default">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      
+      <!-- Empty state message when no results -->
+      <div *ngIf="!isLoading && filteredLocations.length === 0" class="py-6 px-8 text-center text-text-subtle">
+        Tidak ada data ditemukan
+      </div>
+    </div>
+  </div>
+
+  <div class="p-4 border-t border-line-default flex justify-end sm:justify-between mt-auto z-20">
+    <div class="w-[130px] sm:block hidden">
+      <app-pakdome-button
+        *ngIf="hasSelectedLocation"
+        theme="disable-btn"
+        size="xl"
+        (click)="resetSelection()">
+        Atur Ulang
+      </app-pakdome-button>
+    </div>
+
+    <div class="flex gap-2 w-auto items-end">
+      <app-pakdome-button
+        theme="tint-brand-default"
+        size="xl"
+        class="w-auto"
+        (click)="close()">
+        Batal
+      </app-pakdome-button>
+
+      <app-pakdome-button
+        [theme]="!isComplete ? 'disable-btn' : 'solid-purple'"
+        size="xl"
+        class="w-auto"
+        (click)="saveLocation()">
+        Simpan
+      </app-pakdome-button>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,328 @@
+<!-- pages/reminders/edit-reminder/edit-reminder.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-yellow-500 to-orange-600 pt-12 pb-6">
+    <div class="flex items-center justify-between px-6">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Edit Pengingat</h1>
+          <p class="text-yellow-100 text-sm">{{ child?.name }} - {{ formatAge() }}</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button (click)="confirmDelete()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="trash-outline" class="text-white text-xl"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Progress Indicator -->
+      <div class="mb-8">
+        <div class="flex items-center justify-center space-x-2 mb-4">
+          <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+            <span class="text-white text-sm font-bold">✓</span>
+          </div>
+          <div class="w-16 h-1 bg-yellow-500 rounded"></div>
+          <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+            <span class="text-gray-400 text-sm font-bold">2</span>
+          </div>
+        </div>
+        <p class="text-center text-gray-600 text-sm">Edit Pengingat Existing</p>
+      </div>
+
+      <!-- Reminder Info -->
+      <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6" *ngIf="reminder">
+        <div class="flex items-center space-x-3 mb-2">
+          <div class="text-2xl">{{ getReminderTypeInfo(reminder.type).icon }}</div>
+          <div>
+            <p class="font-medium text-yellow-800">{{ reminder.title }}</p>
+            <p class="text-yellow-600 text-sm">Dibuat: {{ formatReminderCreated() }}</p>
+          </div>
+        </div>
+        
+        <!-- Change Indicator -->
+        <div *ngIf="hasChanges()" class="mt-3 pt-3 border-t border-yellow-200">
+          <p class="text-sm" [ngClass]="getChangeIndicator().color">
+            {{ getChangeIndicator().text }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="editReminderForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Type Selection -->
+        <div class="space-y-3">
+          <label class="text-sm font-medium text-gray-700">Jenis Pengingat</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button 
+              *ngFor="let type of reminderTypes"
+              type="button"
+              (click)="selectType(type.type)"
+              class="p-3 border-2 rounded-xl text-center transition-all"
+              [class]="type.color"
+              [class.border-yellow-500]="editReminderForm.get('type')?.value === type.type"
+              [class.ring-2]="editReminderForm.get('type')?.value === type.type"
+              [class.ring-yellow-200]="editReminderForm.get('type')?.value === type.type">
+              
+              <div class="text-2xl mb-1">{{ type.icon }}</div>
+              <h4 class="font-medium text-gray-800 text-sm">{{ type.label }}</h4>
+            </button>
+          </div>
+          <p *ngIf="getFieldError('type')" class="text-error">
+            {{ getFieldError('type') }}
+          </p>
+        </div>
+
+        <!-- Title Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="notifications-outline" class="text-yellow-500 mr-2"></ion-icon>
+            Judul Pengingat
+          </label>
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="Contoh: Sarapan Pagi"
+            class="form-input"
+            [class.form-input-error]="getFieldError('title')">
+          <p *ngIf="getFieldError('title')" class="text-error">
+            {{ getFieldError('title') }}
+          </p>
+          <p class="text-gray-500 text-xs" *ngIf="originalValues.title !== editReminderForm.get('title')?.value">
+            Sebelumnya: "{{ originalValues.title }}"
+          </p>
+        </div>
+
+        <!-- Description Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="document-text-outline" class="text-yellow-500 mr-2"></ion-icon>
+            Deskripsi (Opsional)
+          </label>
+          <textarea
+            formControlName="description"
+            rows="3"
+            placeholder="Tambahkan catatan atau instruksi khusus..."
+            class="form-input resize-none"
+            [class.form-input-error]="getFieldError('description')"></textarea>
+          <div class="flex justify-between items-center">
+            <p *ngIf="getFieldError('description')" class="text-error">
+              {{ getFieldError('description') }}
+            </p>
+            <p class="text-gray-400 text-xs">
+              {{ editReminderForm.get('description')?.value?.length || 0 }}/500 karakter
+            </p>
+          </div>
+          <p class="text-gray-500 text-xs" *ngIf="originalValues.description !== (editReminderForm.get('description')?.value || '')">
+            Sebelumnya: "{{ originalValues.description || 'Tidak ada deskripsi' }}"
+          </p>
+        </div>
+
+        <!-- Time Field -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="time-outline" class="text-yellow-500 mr-2"></ion-icon>
+            Waktu
+          </label>
+          <input
+            type="time"
+            formControlName="time"
+            class="form-input"
+            [class.form-input-error]="getFieldError('time')">
+          <p *ngIf="getFieldError('time')" class="text-error">
+            {{ getFieldError('time') }}
+          </p>
+          <p class="text-gray-500 text-xs" *ngIf="originalValues.time !== editReminderForm.get('time')?.value">
+            Sebelumnya: {{ originalValues.time }}
+          </p>
+        </div>
+
+        <!-- Day Selection -->
+        <div class="space-y-4">
+          <label class="text-sm font-medium text-gray-700 flex items-center">
+            <ion-icon name="calendar-outline" class="text-yellow-500 mr-2"></ion-icon>
+            Pilih Hari
+          </label>
+
+          <!-- Quick Selection Buttons -->
+          <div class="grid grid-cols-2 gap-2 mb-4">
+            <button 
+              type="button"
+              (click)="selectAllDays()"
+              class="p-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+              Setiap Hari
+            </button>
+            <button 
+              type="button"
+              (click)="selectWeekdays()"
+              class="p-2 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors">
+              Hari Kerja
+            </button>
+            <button 
+              type="button"
+              (click)="selectWeekends()"
+              class="p-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors">
+              Weekend
+            </button>
+            <button 
+              type="button"
+              (click)="clearDays()"
+              class="p-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+              Reset
+            </button>
+          </div>
+
+          <!-- Individual Day Selection -->
+          <div class="grid grid-cols-7 gap-2">
+            <button 
+              *ngFor="let day of daysOptions"
+              type="button"
+              (click)="toggleDay(day.value)"
+              class="p-3 text-sm border-2 rounded-lg transition-all text-center"
+              [class.border-yellow-500]="isDaySelected(day.value)"
+              [class.bg-yellow-50]="isDaySelected(day.value)"
+              [class.text-yellow-700]="isDaySelected(day.value)"
+              [class.border-gray-200]="!isDaySelected(day.value)"
+              [class.text-gray-600]="!isDaySelected(day.value)">
+              <div class="font-medium">{{ day.short }}</div>
+            </button>
+          </div>
+
+          <!-- Selected Days Display -->
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <p class="text-sm text-gray-600 mb-1">Hari terpilih:</p>
+            <p class="font-medium text-gray-800">{{ formatSelectedDays() }}</p>
+          </div>
+
+          <p *ngIf="editReminderForm.get('days')?.touched && editReminderForm.get('days')?.errors?.['required']" 
+             class="text-error">
+            Pilih minimal satu hari
+          </p>
+
+          <!-- Original Days Comparison -->
+          <p class="text-gray-500 text-xs" *ngIf="compareDays(originalValues.days, editReminderForm.get('days')?.value)">
+            Sebelumnya: {{ formatDays(originalValues.days) }}
+          </p>
+        </div>
+
+        <!-- Active Status -->
+        <div class="space-y-2">
+          <label class="flex items-center space-x-3">
+            <input 
+              type="checkbox" 
+              formControlName="isActive"
+              class="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500">
+            <span class="text-sm font-medium text-gray-700">Aktifkan pengingat</span>
+          </label>
+          <p class="text-xs text-gray-500">
+            Pengingat yang tidak aktif tidak akan mengirim notifikasi
+          </p>
+          <p class="text-gray-500 text-xs" *ngIf="originalValues.isActive !== editReminderForm.get('isActive')?.value">
+            Sebelumnya: {{ originalValues.isActive ? 'Aktif' : 'Nonaktif' }}
+          </p>
+        </div>
+
+        <!-- Last Triggered Info -->
+        <div *ngIf="reminder?.lastTriggered" class="bg-green-50 border border-green-200 rounded-xl p-3">
+          <div class="flex items-center space-x-2">
+            <ion-icon name="checkmark-circle-outline" class="text-green-600"></ion-icon>
+            <div>
+              <p class="text-green-800 text-sm font-medium">Terakhir Diselesaikan</p>
+              <p class="text-green-600 text-xs">
+                {{ getFormattedLastTriggered() }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button
+            type="submit"
+            [disabled]="isLoading || !editReminderForm.valid || !hasChanges()"
+            class="w-full btn-primary">
+            <span *ngIf="!isLoading" class="flex items-center justify-center">
+              <ion-icon name="save-outline" class="mr-2"></ion-icon>
+              Simpan Perubahan
+            </span>
+            <span *ngIf="isLoading" class="flex items-center justify-center">
+              <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+              Menyimpan...
+            </span>
+          </button>
+        </div>
+
+        <!-- Cancel Button -->
+        <button
+          type="button"
+          (click)="goBack()"
+          class="w-full btn-secondary mt-3">
+          Batal
+        </button>
+      </form>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-yellow-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Memperbarui pengingat...</span>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-sm w-full">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full mx-auto flex items-center justify-center mb-4">
+          <ion-icon name="trash-outline" class="text-red-500 text-2xl"></ion-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Hapus Pengingat?</h3>
+        <p class="text-gray-600 mb-2">
+          <strong>{{ reminder?.title }}</strong>
+        </p>
+        <p class="text-gray-600 mb-6">
+          Pengingat yang dihapus tidak dapat dikembalikan.
+        </p>
+        
+        <div class="flex space-x-3">
+          <button 
+            (click)="cancelDelete()"
+            class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-300 transition-colors">
+            Batal
+          </button>
+          <button 
+            (click)="deleteReminder()"
+            class="flex-1 bg-red-500 text-white font-medium py-3 rounded-xl hover:bg-red-600 transition-colors">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

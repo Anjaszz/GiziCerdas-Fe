@@ -1,0 +1,1 @@
+export const REQUEST_TIMOUT_MS = 25000;

@@ -1,0 +1,22 @@
+<!-- tabs.component.html -->
+<div [class]="getContainerClasses()">
+  <div *ngFor="let tab of tabItems" 
+       [class]="getTabClasses(tab.id)" 
+       (click)="setActiveTab(tab.id)">
+    <div class="flex items-center gap-1">
+      <ng-container *ngIf="leftIconTemplate">
+        <div [class]="getIconClasses(tab.id)">
+          <ng-container *ngTemplateOutlet="leftIconTemplate; context: { $implicit: tab }"></ng-container>
+        </div>
+      </ng-container>
+      
+      <!-- Tab Label -->
+      {{ tab.label }}
+      
+      <ng-container *ngIf="rightIconTemplate">
+        <ng-container *ngTemplateOutlet="rightIconTemplate; context: { $implicit: tab, active: activeTabId === tab.id }"></ng-container>
+      </ng-container>
+    </div>
+    <div [class]="getIndicatorClasses(tab.id)"></div>
+  </div>
+</div>

@@ -1,0 +1,336 @@
+
+
+<div
+  class="flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-20"
+  [class]="
+    isCollapsed
+      ? 'w-20 sm:static'
+      : 'w-64 md:static sm:fixed sm:top-18 sm:left-0'
+  "
+>
+  <!-- Profile Section -->
+  <div class="flex items-center justify-between p-4 border-b border-gray-200 relative">
+    <div class="flex items-center gap-3 max-w-52 ">
+      @defer (on viewport) {
+        <app-avatar
+        [username]="username || ''"
+        [brandname]="brandName"
+        [statusBadge]="accountStatusText"
+          variant="square"
+          [imageUrl]="logoUrl"
+          fallbackType="icon"
+          [size]="'sm'"
+          [showInfo]="!isCollapsed"
+          class="flex-shrink-0"
+         
+        ></app-avatar>
+      } @placeholder (minimum 0.5s) {
+       
+       <div class="flex flex-col gap-1">
+        <div class="flex gap-4 items-center">
+          <p-skeleton size="2.3rem" styleClass="flex-shrink-0"></p-skeleton>
+          
+          <div class="flex flex-col gap-2 flex-1"  *ngIf="!isCollapsed">
+            <p-skeleton height="12px" width="60px"/>
+            <p-skeleton height="10px" width="120px" />
+          </div>
+        </div>
+        <p-skeleton height="14px" width="200px" class="mt-1"/>
+       </div>
+      }
+      
+     
+    </div>
+    <div
+    (click)="toggleSidebar()"
+    class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-surface-default border border-line-default cursor-pointer rounded-full transition-all duration-300 absolute -right-[13px]"
+    [class.rotate-180]="isCollapsed"
+    (mouseenter)="showTooltip($event, 'toggleSidebar', 'right')"
+    (mouseleave)="hideTooltip('toggleSidebar')"
+    #toggleButton
+  >
+    <ic-cheveron-right />
+  </div>
+  <app-tooltip
+    [text]="toggleSidebarTooltipText"
+    [isVisible]="tooltipStates['toggleSidebar'].isVisible"
+    [position]="tooltipPosition"
+    [placement]="'right'"
+    [parentContainer]="toggleButton"
+  >
+  </app-tooltip>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="flex-1 overflow-x-hidden py-4">
+    <ul class="space-y-1 text-text-bolder">
+      <li 
+        class="py-[2px] flex w-full"
+        [ngClass]="{
+          'justify-center px-0': isCollapsed,
+          'items-center px-3': !isCollapsed
+        }"
+        [routerLink]="['/dashboard']"
+      >
+        <p
+          class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+          routerLinkActive="bg-tint-brand-default"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+          #rlaDashboard="routerLinkActive"
+          (mouseenter)="isCollapsed && showTooltip($event, 'dashboard', 'right')"
+          (mouseleave)="isCollapsed && hideTooltip('dashboard')"
+        >
+          <span [ngClass]="{'text-icon-primary': rlaDashboard.isActive}">
+            <ic-grid color="currentcolor" />
+          </span>
+          <span
+            *ngIf="!isCollapsed"
+            class="text-sm transition-all duration-200 text-text-subtle"
+          >
+            Dashboard
+          </span>
+        </p>
+        <app-tooltip
+          *ngIf="isCollapsed"
+          [text]="tooltipStates.dashboard.text"
+          [isVisible]="tooltipStates.dashboard.isVisible"
+          [position]="tooltipPosition"
+          [placement]="'right'"
+        >
+        </app-tooltip>
+      </li>
+
+     <li> <hr class="mx-3 my-2 border-line-default"></li>
+
+      
+      <!-- Draft Paket -->
+      <li 
+        class="py-[2px] flex w-full"
+        [ngClass]="{
+          'justify-center px-0': isCollapsed,
+          'items-center px-3': !isCollapsed
+        }"
+        [routerLink]="['/keranjang']"
+      >
+        <p
+          class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+          routerLinkActive="bg-tint-brand-default"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+          #rlaDraft="routerLinkActive"
+          (mouseenter)="isCollapsed && showTooltip($event, 'draftPaket', 'right')"
+          (mouseleave)="isCollapsed && hideTooltip('draftPaket')"
+        >
+          <span [ngClass]="{'text-icon-primary': rlaDraft.isActive}">
+            <ic-shopcart color="currentcolor" />
+          </span>
+          <span
+            *ngIf="!isCollapsed"
+            class="text-sm transition-all duration-200 text-text-subtle"
+          >
+          Keranjang
+          </span>
+        </p>
+        <app-tooltip
+          *ngIf="isCollapsed"
+          [text]="tooltipStates.draftPaket.text"
+          [isVisible]="tooltipStates.draftPaket.isVisible"
+          [position]="tooltipPosition"
+          [placement]="'right'"
+        >
+        </app-tooltip>
+      </li>
+
+    <li 
+    class="py-[2px] flex w-full"
+    [ngClass]="{
+      'justify-center px-0': isCollapsed,
+      'items-center px-3': !isCollapsed
+    }"
+    [routerLink]="['/daftar-pesanan']"
+  >
+    <p
+      class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+      routerLinkActive="bg-tint-brand-default"
+      [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+      #rlaListShop="routerLinkActive"
+      (mouseenter)="isCollapsed && showTooltip($event, 'daftarPesanan', 'right')"
+      (mouseleave)="isCollapsed && hideTooltip('daftarPesanan')"
+    >
+      <span [ngClass]="{'text-icon-primary': rlaListShop.isActive}">
+        <ic-box color="currentcolor" />
+      </span>
+      <span
+        *ngIf="!isCollapsed"
+        class="text-sm transition-all duration-200 text-text-subtle"
+      >
+        Daftar Pesanan
+      </span>
+    </p>
+    <app-tooltip
+      *ngIf="isCollapsed"
+      [text]="tooltipStates.daftarPesanan.text"
+      [isVisible]="tooltipStates.daftarPesanan.isVisible"
+      [position]="tooltipPosition"
+      [placement]="'right'"
+    >
+    </app-tooltip>
+  </li>
+
+  <li 
+  class="py-[2px] flex w-full border-y border-line-default"
+  [ngClass]="{
+    'justify-center px-0': isCollapsed,
+    'items-center px-3': !isCollapsed
+  }"
+  [routerLink]="['/tagihan']"
+>
+  <p
+    class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+    routerLinkActive="bg-tint-brand-default"
+    [routerLinkActiveOptions]="{ exact: true }"
+    [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+    #rlaPayment="routerLinkActive"
+    (mouseenter)="isCollapsed && showTooltip($event, 'pembayaran', 'right')"
+    (mouseleave)="isCollapsed && hideTooltip('pembayaran')"
+  >
+    <span [ngClass]="{'text-icon-primary': rlaPayment.isActive}">
+      <ic-cash color="currentcolor" />
+    </span>
+    <span
+      *ngIf="!isCollapsed"
+      class="text-sm transition-all duration-200 text-text-subtle"
+    >
+    Tagihan
+    </span>
+  </p>
+  <app-tooltip
+    *ngIf="isCollapsed"
+    [text]="tooltipStates.pembayaran.text"
+    [isVisible]="tooltipStates.pembayaran.isVisible"
+    [position]="tooltipPosition"
+    [placement]="'right'"
+  >
+  </app-tooltip>
+</li>
+     
+
+  <li 
+class="py-[2px] flex w-full"
+[ngClass]="{
+  'justify-center px-0': isCollapsed,
+  'items-center px-3': !isCollapsed
+}"
+[routerLink]="['/cek-tarif']"
+>
+<p
+  class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+  routerLinkActive="bg-tint-brand-default"
+  [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+  #rlaCekTarif="routerLinkActive"
+  (mouseenter)="isCollapsed && showTooltip($event, 'cekTarif', 'right')"
+  (mouseleave)="isCollapsed && hideTooltip('cekTarif')"
+>
+  <span [ngClass]="{'text-icon-primary': rlaCekTarif.isActive}">
+    <ic-receipt-search color="currentcolor" />
+  </span>
+  <span
+    *ngIf="!isCollapsed"
+    class="text-sm transition-all duration-200 text-text-subtle"
+  >
+    Cek Tarif
+  </span>
+</p>
+<app-tooltip
+  *ngIf="isCollapsed"
+  [text]="tooltipStates.cekTarif.text"
+  [isVisible]="tooltipStates.cekTarif.isVisible"
+  [position]="tooltipPosition"
+  [placement]="'right'"
+>
+</app-tooltip>
+</li>
+
+
+  <li 
+  class="py-[2px] flex w-full"
+  [ngClass]="{
+    'justify-center px-0': isCollapsed,
+    'items-center px-3': !isCollapsed
+  }"
+  [routerLink]="['/cek-resi']"
+>
+  <p
+    class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+    routerLinkActive="bg-tint-brand-default"
+    [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+    #rlaCekResi="routerLinkActive"
+    (mouseenter)="isCollapsed && showTooltip($event, 'pembayaran', 'right')"
+    (mouseleave)="isCollapsed && hideTooltip('pembayaran')"
+  >
+    <span [ngClass]="{'text-icon-primary': rlaCekResi.isActive}">
+      <ic-routing color="currentcolor" />
+    </span>
+    <span
+      *ngIf="!isCollapsed"
+      class="text-sm transition-all duration-200 text-text-subtle"
+    >
+      Cek Resi
+    </span>
+  </p>
+  <app-tooltip
+    *ngIf="isCollapsed"
+    [text]="tooltipStates.cekResi.text"
+    [isVisible]="tooltipStates.cekResi.isVisible"
+    [position]="tooltipPosition"
+    [placement]="'right'"
+  >
+  </app-tooltip>
+</li>
+
+<li 
+class="py-[2px] flex w-full"
+[ngClass]="{
+  'justify-center px-0': isCollapsed,
+  'items-center px-3': !isCollapsed
+}"
+[routerLink]="['/list-lastmile']"
+>
+<p
+  class="flex items-center gap-2 py-[6px] px-2 w-full transition-all duration-200 cursor-pointer rounded-md hover:bg-surface-sunken text-icon-subtler hover:text-text-primary"
+  routerLinkActive="bg-tint-brand-default"
+  [routerLinkActiveOptions]="{ exact: true }"
+  [ngClass]="{ 'w-fit': isCollapsed, 'w-full': !isCollapsed }"
+  #rlaListLasmile="routerLinkActive"
+  (mouseenter)="isCollapsed && showTooltip($event, 'pembayaran', 'right')"
+  (mouseleave)="isCollapsed && hideTooltip('pembayaran')"
+>
+  <span [ngClass]="{'text-icon-primary': rlaListLasmile.isActive}">
+    <ic-office color="currentcolor" />
+  </span>
+  <span
+    *ngIf="!isCollapsed"
+    class="text-sm transition-all duration-200 text-text-subtle"
+  >
+    Daftar Lastmile
+  </span>
+</p>
+<app-tooltip
+  *ngIf="isCollapsed"
+  [text]="tooltipStates.cekResi.text"
+  [isVisible]="tooltipStates.cekResi.isVisible"
+  [position]="tooltipPosition"
+  [placement]="'right'"
+>
+</app-tooltip>
+</li>
+
+
+
+    </ul>
+  </nav>
+
+
+</div>
+

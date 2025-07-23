@@ -1,0 +1,87 @@
+<div *ngIf="isOpen" 
+     class="fixed z-50 sm:absolute"
+     [ngClass]="{'inset-x-0 bottom-0 h-1/2': !isDesktop, 'min-w-[240px]': isDesktop}"
+     [style.top.px]="isDesktop ? position.top : null"
+     [style.left.px]="isDesktop ? position.left : null">
+  <!-- Modal -->
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-line-default h-full flex flex-col"
+       [ngClass]="{'animate-slide-up': !isDesktop}">
+    <!-- Header -->
+    <div class="flex items-center justify-center sm:justify-start sm:items-start p-4 relative shrink-0">
+      <h3 class="text-2xl sm:text-base font-bold text-text-bolder">{{ title }}</h3>
+      <button (click)="closeModal()" class="text-text-subtle hover:text-text-bolder right-2 absolute">
+       <close-icon/>
+      </button>
+    </div>
+    <!-- Content -->
+    <div class="px-4 pb-3 text-base text-text-subtle flex-1">
+      <!-- Sort Options -->
+      <div *ngIf="type === 'sort'" class="flex flex-col gap-3 h-full">
+        <label *ngFor="let option of options" 
+               class="flex items-center space-x-3 cursor-pointer hover:bg-surface-hover">
+          <app-radio-simple
+            [name]="'sort'"
+            [value]="option.id"
+            [checked]="selectedSort === option.id"
+            [label]="option.label"
+            [variant]="'no-desc'"
+            (valueChange)="onSortChange($event)"
+          >
+          </app-radio-simple>
+        </label>
+      </div>
+      <!-- Filter Options -->
+      <div *ngIf="type !== 'sort'" class="flex flex-col gap-2">
+        <div *ngFor="let option of options" 
+             class="cursor-pointer hover:bg-surface-hover">
+          <app-checkbox
+            [variant]="'inline'"
+            [title]="option.label"
+            [(ngModel)]="option.checked"
+            (change)="onCheckboxChange(option)"
+            size="sm"
+          >
+          </app-checkbox>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div class="p-2 border-t border-line-default flex justify-end  shrink-0">
+      <app-pakdome-button
+  (click)="applyFilter()"
+  class="sm:w-auto w-full cursor-not-allowed"
+  size="md"
+  [disabled]="isApplyDisabled"
+  [theme]="isApplyDisabled ? 'disable-btn' : 'solid-purple'"
+>
+  Simpan
+</app-pakdome-button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div *ngIf="isOpen" 
+     class="fixed inset-0 z-40" 
+     (click)="closeModal()">
+</div>
+<style>
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-slide-up {
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    @media (min-width: 640px) {
+      .animate-slide-up {
+        animation: none;
+      }
+    }
+    </style>

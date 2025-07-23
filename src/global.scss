@@ -1,0 +1,202 @@
+@import "primeng/resources/primeng.css";
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import url(./assets/styles/importer.css);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+* {
+    font-family: 'Inter', sans-serif;
+   
+  }
+ /*
+html {
+	scrollbar-gutter: stable both-edges;
+}
+*/
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body,
+body::before,
+body::after {
+	margin: 0;
+	padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+input,
+input::placeholder {
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+	font-family: Inter, sans-serif;
+  color: #444D6E;
+}
+
+input {
+	width: 100%;
+	color: #444D6E !important;
+	background: none;
+	
+}
+
+
+
+textarea {
+	outline: none;
+	background: none;
+}
+
+img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 0;
+	padding: 0;
+}
+
+
+::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+}
+::-webkit-scrollbar-track {
+    background: none;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: var(--bg-solid-brand-subtle);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bg-solid-brand-darker);
+}
+
+
+.skeleton-wrapper {
+  /* Mobile first */
+  width: 100%;          /* Mengurangi lebar di mobile */   /* Center horizontally */
+  aspect-ratio: 18/7; /* Membuat lebih pendek di mobile */
+  
+  /* Tablet */
+  @media (min-width: 640px) {
+    width: 100%;
+    aspect-ratio: 4/3;
+  }
+  
+  /* Desktop */
+  @media (min-width: 1024px) {
+    aspect-ratio: 3/4;
+    height: 100vh;
+  }
+}
+
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.picture-animate {
+  opacity: 0; /* Mulai dalam keadaan tidak terlihat */
+  transform: translateY(30px);
+  animation: fade-slide-up 0.3s ease-out forwards;
+}
+ion-header {
+  --box-shadow: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+.custom-toast {
+  text-align: center;
+  font-weight: 500;
+}
+
+.btn-secondary{
+  background-color: aquamarine;
+  color: black;
+  padding: 6px;
+
+  border-radius: 8px;
+}
+
+.btn-primary {
+  width: 100%;
+  background-image: linear-gradient(to right, #22c55e, #16a34a); /* from-green-500 to-green-600 */
+  color: white;
+  font-weight: 600; /* font-semibold */
+  padding-top: 1rem;  /* py-4 */
+  padding-bottom: 1rem;
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+  transition: all 0.2s ease;
+  transform: translateZ(0);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.15),
+              0 8px 10px -2px rgba(0, 0, 0, 0.1); /* hover:shadow-xl */
+  transform: scale(1.02); /* hover:scale-[1.02] */
+}
+
+.btn-primary:disabled {
+  opacity: 0.5; /* disabled:opacity-50 */
+  cursor: not-allowed; /* disabled:cursor-not-allowed */
+  transform: none; /* disabled:transform-none */
+}

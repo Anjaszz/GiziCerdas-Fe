@@ -1,0 +1,124 @@
+<div class="flex flex-col">
+    <div #Label>
+        <ng-content select="[label]" />
+    </div>
+    @if (Label.children.length === 0) {
+    <div class="flex flex-col gap-1 justify-start">
+        <h1 class="font-inter  text-xs text-text-bolder">
+            {{ label }}
+            <span class="text-text-subtle text-xs font-inter font-normal">
+                {{ labelInfo }}</span
+            >
+        </h1>
+        <h1 class="font-inter font-semibold text-[11px] text-text-subtle">
+            {{ labelOptional }}
+        </h1>
+    </div>
+    }
+    
+    <div
+        [ngClass]="shortMedia ? 'grid grid-cols-3 gap-2.5 sm:flex' : 'flex flex-col gap-2.5'"
+    >
+        @if (shortMedia) {
+            @for (item of sourceImage; track $index) {
+                <div class="relative">
+                    <button type="button" (click)="removeImg($index); $event.stopImmediatePropagation()" class="absolute top-0 right-0  rounded p-1 bg-surface-default mt-1 mr-1 flex items-center">
+                        <ic-bin class="w-4 h-4 text-icon-subtler inline-block"/>
+                    </button>
+                    <img src="{{item}}" alt="gambar" class="h-[7.5rem] w-[7.5rem] object-cover object-center rounded-lg border-1 border-line-default">
+                </div>
+            }
+        }
+        <label 
+            (dragover)="shortMedia ? null : (remainingSlots > 0 ? onDragOver($event) : null)"
+            (drop)="shortMedia ? null : (remainingSlots > 0 ? onDrop($event) : null)"
+            [ngClass]="{
+                'w-full pt-9 pb-12': !shortMedia,
+                'sm:h-[10rem] sm:w-[10rem] h-[8rem] w-[8rem]': shortMedia,
+                'focus-within:border-text-discovery border-line-default': !error,
+                'border-[#FF4242]': error,
+                'opacity-90 !bg-alpha-1 ': isDisabled,
+                'bg-surface-sunken border-b-1': bgGrey,
+                'border-1  rounded-lg ': !bgGrey,
+                'bg-text-white': bgWhite,
+                'hidden': shortMedia && remainingSlots === 0
+            }"
+            class="flex items-center gap-2 border-dashed transition-colors duration-200 mb-1  border-line-default relative"
+            (click)="responsiveNativeSrs.isNativeCheck() ? pickNativeMultipleImages() : null"
+        >
+            <div class=" flex flex-col h-full w-full items-center justify-center text-center" [class.gap-2]="shortMedia">
+                <ic-image-empty class="inline-block h-8 w-8" />
+                <p class="text-sm font-semibold text-text-subtle pt-3" [class.hidden]="!empty.title.length">{{ empty.title }}</p>
+                <p class="text-[10px] text-text-subtle" [class.hidden]="!empty.description.length">
+                    {{ empty.description }} {{!shortMedia ? maxFileSizeFormatted : null}}
+                    <ng-container *ngIf="!shortMedia && remainingSlots > 0">
+                        ({{ remainingSlots }} slots remaining)
+                    </ng-container>
+                    <ng-container *ngIf="!shortMedia && remainingSlots === 0">
+                        (Maximum images reached)
+                    </ng-container>
+                </p>
+            </div>
+            @if (!responsiveNativeSrs.isNativeCheck()) {
+                <input
+                    class="hidden"
+                    multiple
+                    type="file"
+                    accept=".jpg, .png,.jpeg"
+                    (change)="handleInputChange($event)"
+                    [disabled]="remainingSlots === 0"
+                />
+            }
+        </label>
+
+        @if (!shortMedia && uploadQueue.length > 0) {
+            <div
+                class="flex flex-col gap-3"
+            >
+                <h1 class="font-semibold text-text-subtle text-sm tracking-tight">{{uploadProgress}}</h1>
+                <!-- Upload Progress -->
+                 <div class="flex flex-col gap-2">
+                     @for (upload of uploadQueue; track $index) {
+                        <div class="flex flex-col">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-normal text-text-subtle ">{{ upload.file.name }} {{upload.size}}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-xs font-normal text-text-subtle">{{ upload.progress }}%</span>
+                                    @if (upload.progress === 100) {
+                                        <button type="button" (click)="removeImg($index); $event.stopImmediatePropagation()" class="">
+                                            <ic-bin class="w-5 h-5 text-icon-subtler inline-block"/>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div 
+                                    class="h-2.5 rounded-full transition-all duration-300"
+                                    [ngClass]="upload.progress === 100 ? 'bg-bold-green-default' : 'bg-bold-brand-default'"
+                                    [style.width]="upload.progress + '%'"
+                                ></div>
+                            </div>
+                        </div>
+                     }
+                 </div>
+            </div>
+    
+            <!-- Display uploaded images -->
+            <!-- <div class="grid grid-cols-3 gap-4 mt-4">
+                <div *ngFor="let image of sourceImage; let i = index">
+                <img [src]="image" class="w-full h-32 object-cover rounded-lg">
+                </div>
+            </div> -->
+        }
+    </div>
+    <h1 class="font-inter font-normal text-2xs text-text-subtler">
+        {{ helper }}
+        <span class="text-text-subtler text-xs font-inter font-light">
+            {{ helperInfo }}</span
+        >
+    </h1>
+    <ng-content select="[additional]" />
+    <ng-content select="[error-1]" />
+    <ng-content select="[error-2]" />
+    <ng-content select="[error-3]" />
+</div>

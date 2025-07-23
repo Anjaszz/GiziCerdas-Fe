@@ -1,0 +1,77 @@
+<div class="sticky-nav-wrapper">
+  <div class="nav-container">
+    <div class="max-w-[1280px] mx-auto">
+      <div class="flex w-full justify-between  p-3">
+        <!-- Beranda -->
+        <a routerLink="/dashboard" 
+           routerLinkActive="active-link"
+           [routerLinkActiveOptions]="{exact: true}"
+           class="flex flex-col items-center gap-[2px] min-w-[4rem]">
+          <div class="rounded-full flex items-center justify-center w-full p-1"
+               [ngClass]="{'bg-tint-brand-default': isActive('/dashboard')}">
+            <ic-grid [ngClass]="{'text-text-primary': isActive('/dashboard'), 'text-icon-subtler': !isActive('/dashboard')}" 
+                    color="currentcolor"/>
+          </div>
+          <span class="text-xs" [ngClass]="{'text-text-primary': isActive('/dashboard'), 'text-text-subtler': !isActive('/dashboard')}">
+            Beranda
+          </span>
+        </a>
+
+        <!-- Pesanan -->
+        <a routerLink="/daftar-pesanan" 
+           routerLinkActive="active-link"
+           [routerLinkActiveOptions]="{exact: true}"
+           class="flex flex-col items-center gap-[2px] min-w-[4rem]">
+          <div class="rounded-full flex items-center justify-center w-full p-1"
+               [ngClass]="{'bg-tint-brand-default': isActive('/daftar-pesanan')}">
+            <ic-box [ngClass]="{'text-text-primary': isActive('/daftar-pesanan'), 'text-icon-subtler': !isActive('/daftar-pesanan')}"
+                   color="currentcolor"/>
+          </div>
+          <span class="text-xs" [ngClass]="{'text-text-primary': isActive('/daftar-pesanan'), 'text-text-subtler': !isActive('/daftar-pesanan')}">
+            Pesanan
+          </span>
+        </a>
+
+        <!-- Add Button -->
+        <a (click)="handleBuatKiriman()"  
+           class="flex flex-col items-center">
+          <div class="p-2 rounded-full bg-gradient-to-r from-bold-brand-default to-bold-brand-subtle flex items-center justify-center shadow-lg">
+            <ic-plus />
+          </div>
+        </a>
+
+        <!-- Tagihan -->
+        <a routerLink="/tagihan" 
+           routerLinkActive="active-link"
+           [routerLinkActiveOptions]="{exact: true}"
+           class="flex flex-col items-center gap-[2px] min-w-[4rem]">
+          <div class="rounded-full flex items-center justify-center w-full p-1"
+               [ngClass]="{'bg-tint-brand-default': isActive('/tagihan')}">
+            <ic-cash [ngClass]="{'text-text-primary': isActive('/tagihan'), 'text-icon-subtler': !isActive('/tagihan')}"
+                    color="currentcolor"/>
+          </div>
+          <span class="text-xs" [ngClass]="{'text-text-primary': isActive('/tagihan'), 'text-text-subtler': !isActive('/tagihan')}">
+            Tagihan
+          </span>
+        </a>
+
+        <!-- Menu -->
+        <a routerLink="/menu" 
+           routerLinkActive="active-link"
+           [routerLinkActiveOptions]="{exact: true}"
+           class="flex flex-col items-center gap-[2px] min-w-[4rem]">
+          <div class="rounded-full flex items-center justify-center w-full p-1"
+               [ngClass]="{'bg-tint-brand-default': isActive('/menu')}">
+            <menu-icon [ngClass]="{'text-text-primary': isActive('/menu'), 'text-icon-subtler': !isActive('/menu')}"
+                      color="currentcolor"/>
+          </div>
+          <span class="text-xs" [ngClass]="{'text-text-primary': isActive('/menu'), 'text-text-subtler': !isActive('/menu')}">
+            Menu
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <app-locked-acc-modal  [isOpen]="lockedmodal" (onClose)="closeLockModal()"></app-locked-acc-modal>
+</div>
+

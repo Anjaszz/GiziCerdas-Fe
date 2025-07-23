@@ -1,0 +1,59 @@
+<div *ngIf="isOpen" 
+     class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black modal-backdrop"
+     [class.modal-open]="isOpen">
+  <div class="modal-content bg-white w-full sm:w-[420px] rounded-t-2xl sm:rounded-2xl 
+              h-[50vh] sm:h-auto"
+       (touchstart)="startDrag($event)"
+       (touchmove)="onDrag($event)"
+       (touchend)="endDrag()">
+    
+    <!-- Drag Indicator for Mobile -->
+    <div class="sm:hidden w-full flex justify-center pt-2 pb-1 cursor-pointer">
+      <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
+    </div>
+
+    <!-- Header - Only shown on desktop -->
+    <div class="hidden sm:flex justify-end items-center p-3">
+      <button (click)="close()" class="text-gray-500 hover:text-gray-700">
+        <close-icon></close-icon>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="pb-8 px-8 flex flex-col gap-6">
+      <div class="text-center">
+        <h2 class="text-xl text-text-bolder font-bold">Hapus Alamat?</h2>
+        <p class="text-text-subtle mt-2">Apa kamu yakin akan menghapus alamat :</p>
+      </div>
+
+      <!-- Address Details -->
+      <div class="flex flex-col text-text-subtle gap-[6px] bg-tint-brand-default p-3 rounded-lg">
+        <div class="text-sm font-semibold">{{ address?.name }}</div>
+        <div>
+          <div class="text-xs">{{ address?.phone }}</div>
+          <div class="text-xs">{{ address?.address }}</div>
+          <div class="text-sm font-semibold">{{ formatDomicile(address?.domicile || '') }}</div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex flex-col gap-3">
+        <app-pakdome-button
+          theme="solid-purple"
+          class="flex-1"
+          [tooltip]="'Klik untuk Hapus Alamat'"
+          (click)="confirmDelete()">
+          Hapus Alamat {{ address?.type === 'pickup' ? 'Pickup' : 'Penerima' }}
+        </app-pakdome-button>
+
+        <app-pakdome-button
+          theme="tint-brand-default"
+          [tooltip]="'Klik untuk kembali'"
+          class="flex-1"
+          (click)="close()">
+          Kembali
+        </app-pakdome-button>
+      </div>
+    </div>
+  </div>
+</div>

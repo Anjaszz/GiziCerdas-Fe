@@ -1,0 +1,64 @@
+<div 
+*ngIf="isOpen && orderData"
+class="fixed inset-0 z-50 flex items-center justify-center  bg-black bg-opacity-50 sm:pt-16 pt-0"
+(click)="onBackdropClick($event)">
+<div 
+  class="relative bg-surface-sunken w-full h-full max-h-full sm:max-w-[482px] sm:h-auto sm:rounded-lg shadow-lg sm:mx-4 sm:mb-4"
+  (click)="$event.stopPropagation()">
+  
+  <!-- Header -->
+   <div class="sm:hidden flex gap-2 text-text-subtle p-4 text-lg font-bold items-center">
+    <ic-arrow-left  (click)="onClose()" />
+<h1>Detail Pesanan</h1>
+   </div>
+  <div class="sm:flex justify-between items-center p-4 border-b border-line-default hidden">
+    <h2 class="text-lg font-bold text-text-bolder">Detail Pesanan</h2>
+    <div 
+      class="p-2 text-icon-subtle cursor-pointer hover:bg-surface-sunken rounded-full"
+      (click)="onClose()">
+      <close-icon color="currentColor"></close-icon>
+    </div>
+  </div>
+  
+  <!-- Order Number & Courier -->
+  <div class="p-4 flex justify-between items-start border-b border-line-default">
+    <div>
+      <p class="text-xs text-text-subtler mb-1">No. Order</p>
+      <p class="text-base font-semibold text-text-bolder">{{ orderData.id }}</p>
+      <p class="text-sm text-text-subtler">
+        {{ orderData.courier }} <span class="text-bold-brand-default">• {{ orderData.serviceType }}</span>
+      </p>
+    </div>
+    <div *ngIf="orderData.logoSrc" class="w-16 ">
+      <img [src]="orderData.logoSrc" alt="Courier logo" class="w-full h-auto">
+    </div>
+  </div>
+  
+  <!-- Content wrapper with scrolling for mobile -->
+  <div class="overflow-auto h-[calc(100%-110px)] sm:h-auto">
+    <!-- Shipping Information -->
+    <div class="p-4 border-b border-line-default">
+      <h3 class="text-base font-bold text-text-bolder mb-3">Info Kiriman</h3>
+      
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div>
+          <p class="text-[11px] font-medium text-text-subtler mb-1">Berat Tertagih</p>
+          <p class="text-xs text-text-bolder font-semibold">{{ orderData.totalWeight }} Kg</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-medium text-text-subtler mb-1">Total</p>
+          <p class="text-xs text-text-bolder font-semibold">{{ orderData.totalPackets }} Koli</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-medium text-text-subtler mb-1">Tagihan</p>
+          <p class="text-xs text-text-subtler font-bold">Rp{{ formatNumber(orderData.totalPrice) }}</p>
+        </div>
+      </div>
+      
+    
+    </div>
+ 
+   
+  </div>
+</div>
+</div>

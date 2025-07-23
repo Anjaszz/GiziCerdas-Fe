@@ -1,0 +1,73 @@
+/* OVERLAY PANEL */
+.p-overlaypanel {
+	background: white;
+
+}
+
+
+.p-overlaypanel-content {
+	padding: 0;
+	background: none;
+	border: none;
+}
+
+
+.p-dialog {
+	box-shadow: none;
+}
+
+/* styles.css atau di style file komponen */
+.p-skeleton {
+	content: '';
+	display: block;
+	height: 100%;
+	width: 100%;
+	background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+	0% {
+	  background-position: 200% 0;
+	}
+	100% {
+	  background-position: -200% 0;
+	}
+  }
+  
+
+/* CALENDAR */
+.caledar {
+    position: absolute;
+    top: 1.2rem;
+    left: 17.5rem;
+    
+    
+
+	.special {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 0.25rem;
+		padding-top: 0.5rem;
+		border-top: 1.5px solid var(--line-default);
+	}
+}
+.p-datepicker{
+
+}
+.p-datepicker table td > span.p-highlight {
+	color: #5b40f6;
+	background: #edeaff;
+}
+
+.p-datepicker:not(.p-disabled)
+	table
+	td
+	span:not(.p-highlight):not(.p-disabled):hover {
+	background: transparent;
+}
+
+

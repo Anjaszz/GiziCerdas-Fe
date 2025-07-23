@@ -1,0 +1,104 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex sm:items-center sm:justify-center">
+  <!-- Overlay background -->
+  <div class="fixed inset-0 bg-black bg-opacity-50" (click)="close()"></div>
+  
+  <!-- Modal container - positioned differently for mobile vs desktop -->
+  <div #modalContainer 
+       class="bg-white sm:rounded-2xl rounded-t-3xl w-full sm:w-[520px] max-w-full sm:h-[640px] h-[640px] flex flex-col sm:m-auto absolute sm:relative sm:top-auto bottom-0">
+       
+    <!-- Drag Indicator - Only visible on mobile -->
+    <div #dragIndicator
+         class="sm:hidden w-full flex justify-center pt-2 pb-1 cursor-pointer"
+         (touchstart)="onDragIndicatorTouchStart($event)"
+         (touchmove)="onDragIndicatorTouchMove($event)"
+         (touchend)="onDragIndicatorTouchEnd($event)">
+      <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
+    </div>
+    
+    <!-- Header with close button - hidden on mobile -->
+    <div class="flex items-center px-5 py-4">
+      <button (click)="close()" class="sm:flex hidden ml-auto text-icon-subtle hover:text-icon-default">
+        <close-icon/>
+      </button>
+    </div>
+    
+    <div class="flex justify-center text-center pb-4">
+      <h2 class="text-xl font-bold text-text-bolder">Pilih Kurir</h2>
+    </div>
+
+    <!-- Service type options -->
+    <div class="px-6 pt-4 overflow-x-auto">
+      <div class="flex items-center gap-2 min-w-max">
+        <!-- Dynamic service type buttons -->
+        <ng-container *ngFor="let type of availableServiceTypes">
+          <button
+            (click)="setServiceType(type)"
+            class="px-3 py-2 rounded-[32px] text-base text-center flex gap-[6px] whitespace-nowrap items-center"
+            [ngClass]="{
+              'bg-tint-brand-default text-text-primary': activeServiceType !== type,
+              'bg-bold-brand-default text-text-white': activeServiceType === type
+            }"
+          >
+            {{ serviceTypeLabels[type] }} ({{ getServiceTypeCount(type) }})
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Courier list - with fixed height container and overflow -->
+    <div class="flex-1 overflow-y-auto native-scrollbar px-6 py-4">
+      <div *ngIf="filteredOptions.length === 0" class="flex flex-col items-center justify-center py-8 text-center">
+        <div class="w-16 h-16 mb-4 text-text-subtler">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0L5 14m7 7V3" />
+          </svg>
+        </div>
+        <p class="text-text-subtler mb-2">
+          Tidak ada layanan kurir yang tersedia
+        </p>
+        <p class="text-sm text-text-subtlest">
+          Silakan ubah filter atau coba lagi nanti
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <div *ngFor="let option of filteredOptions"
+        class="border rounded-lg p-4 cursor-pointer transition-all duration-200"
+        [ngClass]="{
+          'border-line-default bg-white': !isSelected(option),
+          'border-line-brand bg-tint-brand-default': isSelected(option)
+        }"
+        (click)="selectCourier(option)">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <!-- Logo -->
+              <img [src]="option.logoSrc" 
+                   [alt]="option.courier"
+                   class="w-[86px] h-12 object-contain border border-line-default rounded p-1 bg-white"/>
+              
+              <!-- Service details -->
+              <div class="flex flex-col">
+                <span class="text-text-subtle text-sm font-medium">{{ option.courier }}</span>
+                <span class="text-text-subtler text-xs">{{ option.serviceName }}</span>
+                <span class="text-sm text-text-bolder font-semibold mt-1">{{ option.shippingCost.toString() | priceFormat }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="sm:ml-[100px] ml-[75px] mt-2 bg-tint-blue-default text-xs text-text-discovery rounded-full py-1 px-[6px] w-fit">
+            Berat Tertagih <span class="font-semibold">{{ option.chargeWeight || 0 }} kg</span> dari <span class="font-semibold">{{ totalPackets }} Koli</span>
+          </div>
+          <!-- Additional service information if available -->
+          <div *ngIf="option.estimatedDelivery || option.serviceNotes" class="mt-1 pl-[100px] text-xs text-text-subtlest">
+            <div *ngIf="option.estimatedDelivery" class="flex items-center gap-1">
+              <span>Estimasi: {{ option.estimatedDelivery }}</span>
+            </div>
+            
+            <div *ngIf="option.serviceNotes" class="flex items-center gap-1 mt-1">
+              <span>{{ option.serviceNotes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

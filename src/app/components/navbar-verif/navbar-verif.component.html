@@ -1,0 +1,36 @@
+<nav class="flex items-center justify-between sm:px-4 px-2 py-2 bg-white shadow-sm relative top-0 w-full ">
+  <!-- Logo Section -->
+  <div class="flex justify-between py-[10px] sm:px-3 px-1 w-full">
+
+    <picture>
+      <source media="(min-width: 640px)" srcset="assets/footer-logo-375.svg"/>
+      <img 
+        src="assets/logo-navbar-mobile.svg" 
+        alt="city" 
+        class="w-full h-full"
+        routerLink="/masuk"
+      />
+    </picture>
+ 
+
+
+    <app-pakdome-button (clicked)="openmodal()" *ngIf="showExitButton">Keluar</app-pakdome-button>
+
+  </div>
+
+
+</nav>
+
+<app-costum-modal-v1
+  [isOpen]="showModal"
+  title="Keluar dari Pakdome"
+  description="Data yang kamu ajukan masih dalam proses verifikasi. Apakah kamu ingin keluar ?"
+  confirmButtonText="Ya, Keluar"
+  cancelButtonText="Tidak"
+  cancelButtonMobileText="Tidak"
+  modalWidth="420px"
+  buttonLayout="horizontal"
+  (onConfirm)="handleConfirm()"
+  (onCancel)="handleCancel()"
+  (onClose)="handleCancel()">
+</app-costum-modal-v1>

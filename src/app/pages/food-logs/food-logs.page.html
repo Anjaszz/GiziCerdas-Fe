@@ -1,0 +1,440 @@
+<!-- pages/food-logs/food-logs.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-orange-500 to-red-600 pt-12 pb-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 mb-4">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Food Logs</h1>
+          <p class="text-orange-100 text-sm">{{ child?.name }} - {{ formatAge() }}</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button (click)="refreshData()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="refresh-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <button 
+          (click)="goToAddFoodLog()"
+          class="bg-white text-orange-600 font-semibold px-4 py-2 rounded-full flex items-center space-x-2">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Log</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="mx-6">
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+        <div class="grid grid-cols-4 gap-4 text-center">
+          <div>
+            <p class="text-orange-100 text-xs mb-1">Hari Ini</p>
+            <p class="text-white text-xl font-bold">{{ quickStats.todayLogs }}</p>
+          </div>
+          <div>
+            <p class="text-orange-100 text-xs mb-1">Minggu Ini</p>
+            <p class="text-white text-xl font-bold">{{ quickStats.thisWeekLogs }}</p>
+          </div>
+          <div>
+            <p class="text-orange-100 text-xs mb-1">Streak</p>
+            <p class="text-white text-xl font-bold">{{ quickStats.loggingStreak }}</p>
+          </div>
+          <div>
+            <p class="text-orange-100 text-xs mb-1">Rata² Kalori</p>
+            <p class="text-white text-xl font-bold">{{ quickStats.averageCalories }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Today's Nutrition Summary -->
+      <div *ngIf="dailySummary && !isLoadingSummary" class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-800">Nutrisi Hari Ini</h3>
+          <button (click)="goToDailySummary(selectedDate || getCurrentDate())" 
+                  class="text-orange-600 text-sm font-medium">
+            Lihat Detail
+          </button>
+        </div>
+        
+        <div class="bg-white border border-gray-200 rounded-xl p-4">
+          <!-- Calories Progress -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-600">Kalori</span>
+              <span class="text-sm font-medium" [ngClass]="getComplianceColor(dailySummary.compliance.calories)">
+                {{ dailySummary.totalNutrition.calories }}/{{ dailySummary.targets.calories }}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="h-2 rounded-full transition-all duration-300"
+                   [style.width.%]="dailySummary.compliance.calories"
+                   [ngClass]="dailySummary.compliance.calories >= 90 ? 'bg-green-500' : dailySummary.compliance.calories >= 70 ? 'bg-yellow-500' : 'bg-red-500'">
+              </div>
+            </div>
+          </div>
+
+          <!-- Protein Progress -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-600">Protein</span>
+              <span class="text-sm font-medium" [ngClass]="getComplianceColor(dailySummary.compliance.protein)">
+                {{ dailySummary.totalNutrition.protein }}/{{ dailySummary.targets.protein }}g
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="h-2 rounded-full transition-all duration-300"
+                   [style.width.%]="dailySummary.compliance.protein"
+                   [ngClass]="dailySummary.compliance.protein >= 90 ? 'bg-green-500' : dailySummary.compliance.protein >= 70 ? 'bg-yellow-500' : 'bg-red-500'">
+              </div>
+            </div>
+          </div>
+
+          <!-- Meal Completion -->
+          <div class="grid grid-cols-4 gap-2">
+            <div class="text-center">
+              <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs"
+                   [class.bg-green-100]="mealCompletion.breakfast"
+                   [class.text-green-800]="mealCompletion.breakfast"
+                   [class.bg-gray-100]="!mealCompletion.breakfast"
+                   [class.text-gray-500]="!mealCompletion.breakfast">
+                {{ getMealCompletionIcon(mealCompletion.breakfast) }}
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Sarapan</p>
+            </div>
+            <div class="text-center">
+              <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs"
+                   [class.bg-green-100]="mealCompletion.lunch"
+                   [class.text-green-800]="mealCompletion.lunch"
+                   [class.bg-gray-100]="!mealCompletion.lunch"
+                   [class.text-gray-500]="!mealCompletion.lunch">
+                {{ getMealCompletionIcon(mealCompletion.lunch) }}
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Siang</p>
+            </div>
+            <div class="text-center">
+              <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs"
+                   [class.bg-green-100]="mealCompletion.dinner"
+                   [class.text-green-800]="mealCompletion.dinner"
+                   [class.bg-gray-100]="!mealCompletion.dinner"
+                   [class.text-gray-500]="!mealCompletion.dinner">
+                {{ getMealCompletionIcon(mealCompletion.dinner) }}
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Malam</p>
+            </div>
+            <div class="text-center">
+              <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs"
+                   [class.bg-green-100]="mealCompletion.snack"
+                   [class.text-green-800]="mealCompletion.snack"
+                   [class.bg-gray-100]="!mealCompletion.snack"
+                   [class.text-gray-500]="!mealCompletion.snack">
+                {{ getMealCompletionIcon(mealCompletion.snack) }}
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Snack</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Tambah Makanan Cepat</h3>
+        <div class="grid grid-cols-2 gap-3">
+          
+          <!-- Add Breakfast -->
+          <button 
+            (click)="goToAddFoodLog('breakfast')"
+            class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <span class="text-lg">🌅</span>
+            <span class="font-medium">Sarapan</span>
+          </button>
+
+          <!-- Add Lunch -->
+          <button 
+            (click)="goToAddFoodLog('lunch')"
+            class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <span class="text-lg">☀️</span>
+            <span class="font-medium">Makan Siang</span>
+          </button>
+
+          <!-- Add Dinner -->
+          <button 
+            (click)="goToAddFoodLog('dinner')"
+            class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <span class="text-lg">🌙</span>
+            <span class="font-medium">Makan Malam</span>
+          </button>
+
+          <!-- Add Snack -->
+          <button 
+            (click)="goToAddFoodLog('snack')"
+            class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <span class="text-lg">🍪</span>
+            <span class="font-medium">Camilan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="mb-6">
+        <h3 class="font-semibold text-gray-800 mb-4">Filter & Pencarian</h3>
+        
+        <!-- Date Filter -->
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-700 mb-2 block">Tanggal:</label>
+          <div class="flex space-x-2">
+            <input 
+              type="date" 
+              [value]="selectedDate"
+              #dateInput
+              (change)="changeDate(dateInput.value)"
+              class="flex-1 form-input text-sm">
+            <button 
+              (click)="changeDate(getCurrentDate())"
+              class="px-3 py-2 bg-orange-100 text-orange-600 rounded-lg text-sm hover:bg-orange-200 transition-colors">
+              Hari Ini
+            </button>
+          </div>
+        </div>
+
+        <!-- Meal Type Filter -->
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-700 mb-2 block">Jenis Makanan:</label>
+          <div class="flex space-x-2 overflow-x-auto">
+            <button 
+              *ngFor="let mealType of ['all', 'breakfast', 'lunch', 'dinner', 'snack']"
+              (click)="changeMealType(mealType)"
+              class="px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+              [class.bg-orange-500]="selectedMealType === mealType"
+              [class.text-white]="selectedMealType === mealType"
+              [class.bg-gray-200]="selectedMealType !== mealType"
+              [class.text-gray-700]="selectedMealType !== mealType">
+              <span *ngIf="mealType !== 'all'">{{ getMealTypeInfo(mealType).icon }}</span>
+              {{ mealType === 'all' ? 'Semua' : getMealTypeInfo(mealType).label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Clear Filters -->
+        <button 
+          (click)="clearFilters()"
+          class="text-orange-600 text-sm font-medium">
+          Hapus Filter
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="groupedLogs.length === 0 && !isLoading" class="text-center py-16">
+        <div class="w-24 h-24 bg-orange-100 rounded-full mx-auto flex items-center justify-center mb-6">
+          <ion-icon name="restaurant-outline" class="text-orange-500 text-4xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">
+          <span *ngIf="selectedDate || selectedMealType !== 'all'">Tidak Ada Log Makanan</span>
+          <span *ngIf="!selectedDate && selectedMealType === 'all'">Belum Ada Log Makanan</span>
+        </h3>
+        <p class="text-gray-500 mb-8 max-w-sm mx-auto">
+          <span *ngIf="selectedDate || selectedMealType !== 'all'">
+            Tidak ada catatan makanan yang sesuai dengan filter yang dipilih
+          </span>
+          <span *ngIf="!selectedDate && selectedMealType === 'all'">
+            Mulai catat makanan {{ child?.name }} untuk melacak nutrisi hariannya
+          </span>
+        </p>
+        <button 
+          (click)="goToAddFoodLog()"
+          class="btn-primary">
+          <ion-icon name="add-outline" class="mr-2"></ion-icon>
+          <span *ngIf="selectedDate || selectedMealType !== 'all'">Tambah Log Makanan</span>
+          <span *ngIf="!selectedDate && selectedMealType === 'all'">Buat Log Pertama</span>
+        </button>
+      </div>
+
+      <!-- Food Logs List -->
+      <div *ngIf="groupedLogs.length > 0" class="space-y-6 mb-8">
+        <h3 class="font-semibold text-gray-800">
+          Log Makanan ({{ quickStats.totalLogs }})
+        </h3>
+
+        <div *ngFor="let group of groupedLogs" class="space-y-4">
+          <!-- Date Header -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <h4 class="font-medium text-gray-800">{{ getRelativeDate(group.date) }}</h4>
+              <span class="text-xs text-gray-500">{{ formatDate(group.date) }}</span>
+            </div>
+            <div class="flex items-center space-x-2 text-xs text-gray-500">
+              <span>{{ getTotalCaloriesForDate(group.logs) }} kal</span>
+              <span>•</span>
+              <span>{{ getTotalProteinForDate(group.logs) }}g protein</span>
+            </div>
+          </div>
+
+          <!-- Logs for this date -->
+          <div class="space-y-2">
+            <div *ngFor="let log of group.logs" 
+                 class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+              
+              <!-- Log Header -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <!-- Meal Type Icon -->
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" 
+                       [ngClass]="getMealTypeInfo(log.mealType).color">
+                    {{ getMealTypeInfo(log.mealType).icon }}
+                  </div>
+                  
+                  <!-- Log Info -->
+                  <div>
+                    <h5 class="font-medium text-gray-800">{{ getMealTypeInfo(log.mealType).label }}</h5>
+                    <p class="text-gray-500 text-sm">{{ log.foods.length }} makanan</p>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-2">
+                  <button 
+                    (click)="goToEditFoodLog(log, $event)"
+                    class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                  <button 
+                    (click)="deleteFoodLog(log, $event)"
+                    class="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Nutrition Summary -->
+              <div class="grid grid-cols-4 gap-4 mb-3 text-center">
+                <div>
+                  <p class="text-xs text-gray-500">Kalori</p>
+                  <p class="font-semibold text-gray-800">{{ log.totalNutrition.calories }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Protein</p>
+                  <p class="font-semibold text-gray-800">{{ log.totalNutrition.protein }}g</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Karbo</p>
+                  <p class="font-semibold text-gray-800">{{ log.totalNutrition.carbs }}g</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Lemak</p>
+                  <p class="font-semibold text-gray-800">{{ log.totalNutrition.fat }}g</p>
+                </div>
+              </div>
+
+              <!-- Food Items -->
+              <div class="space-y-1">
+                <div *ngFor="let food of log.foods" class="flex items-center justify-between text-sm">
+                  <span class="text-gray-700">{{ food.foodName }}</span>
+                  <span class="text-gray-500">{{ food.amount }}{{ food.unit }}</span>
+                </div>
+              </div>
+
+              <!-- Mood & Appetite -->
+              <div *ngIf="log.mood || log.appetite" class="flex items-center space-x-4 mt-3 pt-3 border-t border-gray-100">
+                <div *ngIf="log.mood" class="flex items-center space-x-1">
+                  <span>{{ getMoodInfo(log.mood).icon }}</span>
+                  <span class="text-xs text-gray-500">{{ getMoodInfo(log.mood).label }}</span>
+                </div>
+                <div *ngIf="log.appetite" class="flex items-center space-x-1">
+                  <span>{{ getAppetiteInfo(log.appetite).icon }}</span>
+                  <span class="text-xs text-gray-500">{{ getAppetiteInfo(log.appetite).label }}</span>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div *ngIf="log.notes" class="mt-3 pt-3 border-t border-gray-100">
+                <p class="text-sm text-gray-600 italic">{{ log.notes }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Actions -->
+      <div *ngIf="quickStats.totalLogs > 0" class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Tools & Analisis</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button 
+            (click)="goToNutritionNeeds()"
+            class="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-center space-x-2 hover:shadow-md transition-shadow">
+            <ion-icon name="fitness-outline" class="text-blue-600"></ion-icon>
+            <span class="font-medium text-gray-800">Kebutuhan Gizi</span>
+          </button>
+          
+          <button 
+            (click)="goToDailySummary(getCurrentDate())"
+            class="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-center space-x-2 hover:shadow-md transition-shadow">
+            <ion-icon name="stats-chart-outline" class="text-green-600"></ion-icon>
+            <span class="font-medium text-gray-800">Laporan Harian</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-orange-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Memuat food logs...</span>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-sm w-full">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full mx-auto flex items-center justify-center mb-4">
+          <ion-icon name="trash-outline" class="text-red-500 text-2xl"></ion-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Hapus Log Makanan?</h3>
+        <p class="text-gray-600 mb-2" *ngIf="logToDelete">
+          <strong>{{ getMealTypeInfo(logToDelete.mealType).label }}</strong>
+        </p>
+        <p class="text-gray-600 mb-6">
+          Log makanan yang dihapus tidak dapat dikembalikan.
+        </p>
+        
+        <div class="flex space-x-3">
+          <button 
+            (click)="cancelDelete()"
+            class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-300 transition-colors">
+            Batal
+          </button>
+          <button 
+            (click)="confirmDelete()"
+            class="flex-1 bg-red-500 text-white font-medium py-3 rounded-xl hover:bg-red-600 transition-colors">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

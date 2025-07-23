@@ -1,0 +1,70 @@
+<!-- toggle.component.html -->
+@if(variant === 'default'){
+  <div class="flex items-center justify-center">
+    <div class="relative inline-block" [ngClass]="[toggleSizeClass.container]">
+      <input 
+        [id]="toggleId"
+        type="checkbox"
+        [checked]="checked"
+        (change)="onToggleChange($event)"
+        class="peer appearance-none w-full h-full rounded-full peer-checked:border-none border cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bold-brand-default"
+        [ngClass]="[
+          toggleThemeClass.background,
+          toggleThemeClass.checkedBackground
+        ]"
+      />
+      <label 
+        [for]="toggleId"
+        class="absolute top-[2px] left-[2px] rounded-full bg-surface-default shadow-sm transition-transform duration-300 cursor-pointer"
+        [ngClass]="[
+          toggleSizeClass.slider,
+          toggleSizeClass.translateChecked
+        ]"
+      >
+      </label>
+    </div>
+    <label 
+      *ngIf="label"
+      [for]="toggleId" 
+      class="ml-2 cursor-pointer text-text-subtle"
+    >
+      {{ label }}
+      @if(span){<span class="text-text-subtlest">{{ span }}</span>}
+    </label>
+  </div>
+}
+
+@if(variant === 'with-description'){
+  <div class="flex justify-center items-center">
+    <div class="flex flex-col max-w-xs">
+      @if(title){
+        <p class="font-medium text-text-subtle text-sm">{{ title }}</p>
+      }
+      @if(description){
+        <p class="text-sm text-text-subtlest">{{ description }}</p>
+      }
+    </div>
+    <div class="relative inline-block" [ngClass]="[toggleSizeClass.container]">
+      <input 
+        [id]="toggleId"
+        type="checkbox"
+        [checked]="checked"
+        (change)="onToggleChange($event)"
+        class="peer appearance-none w-full h-full rounded-full peer-checked:border-none border cursor-pointer transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bold-brand-default"
+        [ngClass]="[
+          toggleThemeClass.background,
+          toggleThemeClass.checkedBackground
+        ]"
+      />
+      <label 
+        [for]="toggleId"
+        class="absolute top-[2px] left-[2px] rounded-full bg-surface-default shadow-sm transition-transform duration-300 cursor-pointer"
+        [ngClass]="[
+          toggleSizeClass.slider,
+          toggleSizeClass.translateChecked
+        ]"
+      >
+      </label>
+    </div>
+  </div>
+}

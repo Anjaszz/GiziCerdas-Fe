@@ -1,0 +1,23 @@
+.native-scrollbar {
+    /* Styling for native scrollbar */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #c1c1c1 #f1f1f1; /* Firefox: thumb track */
+    
+    &::-webkit-scrollbar {
+      width: 4px; /* Width of the scrollbar */
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1; /* Track color */
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1; /* Thumb color */
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background: #a1a1a1; /* Thumb hover color */
+    }
+  }
+  

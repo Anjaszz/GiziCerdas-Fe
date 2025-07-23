@@ -1,0 +1,234 @@
+<!-- pages/children/children.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-green-500 to-green-600 pt-12 pb-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 mb-4">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Data Anak</h1>
+          <p class="text-green-100 text-sm">Kelola informasi anak Anda</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button (click)="refreshData()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="refresh-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <button 
+          (click)="goToAddChild()"
+          class="bg-white text-green-600 font-semibold px-4 py-2 rounded-full flex items-center space-x-2">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Tambah</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="mx-6">
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-green-100 text-sm">Total Anak</p>
+            <p class="text-white text-2xl font-bold">{{ children.length }}</p>
+          </div>
+          <div *ngIf="selectedChild">
+            <p class="text-green-100 text-sm">Anak Aktif</p>
+            <p class="text-white font-semibold">{{ selectedChild.name }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+            <ion-icon name="person-outline" class="text-white text-2xl"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Empty State -->
+      <div *ngIf="children.length === 0 && !isLoading" class="text-center py-16">
+        <div class="w-24 h-24 bg-gray-100 rounded-full mx-auto flex items-center justify-center mb-6">
+          <ion-icon name="person-outline" class="text-gray-400 text-4xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Data Anak</h3>
+        <p class="text-gray-500 mb-8 max-w-sm mx-auto">
+          Mulai dengan menambahkan data anak pertama Anda untuk memantau tumbuh kembangnya
+        </p>
+        <button 
+          (click)="goToAddChild()"
+          class="btn-primary">
+          <ion-icon name="add-outline" class="mr-2"></ion-icon>
+          Tambah Anak Pertama
+        </button>
+      </div>
+
+      <!-- Children List -->
+      <div *ngIf="children.length > 0" class="space-y-4">
+        <div 
+          *ngFor="let child of children; trackBy: trackByChildId"
+          (click)="goToChildDetail(child)"
+          class="relative border-2 rounded-xl p-4 transition-all duration-200 hover:shadow-lg cursor-pointer"
+          [ngClass]="getChildCardBg(child.gender)">
+          
+          <!-- Selected Badge -->
+          <div *ngIf="getSelectedBadge(child)" 
+               class="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+            Aktif
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <!-- Avatar -->
+            <div class="relative">
+              <div *ngIf="child.profileImage; else defaultAvatar" 
+                   class="w-16 h-16 rounded-full overflow-hidden border-3 border-white shadow-lg">
+                <img [src]="child.profileImage" [alt]="child.name" class="w-full h-full object-cover">
+              </div>
+              <ng-template #defaultAvatar>
+                <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg"
+                     [ngClass]="child.gender === 'male' ? 'bg-blue-500' : 'bg-pink-500'">
+                  <span class="text-white font-bold text-lg">{{ getInitials(child.name) }}</span>
+                </div>
+              </ng-template>
+              
+              <!-- Gender Badge -->
+              <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                <ion-icon [name]="getGenderIcon(child.gender)" [ngClass]="getGenderColor(child.gender)"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Child Info -->
+            <div class="flex-1">
+              <h3 class="font-bold text-gray-800 text-lg">{{ child.name }}</h3>
+              <div class="flex items-center space-x-2 mt-1">
+                <ion-icon name="cake-outline" class="text-gray-500"></ion-icon>
+                <span class="text-gray-600 text-sm">{{ formatAge(child.birthDate) }}</span>
+              </div>
+              <p *ngIf="child.notes" class="text-gray-500 text-sm mt-1 line-clamp-2">
+                {{ child.notes }}
+              </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col space-y-2">
+              <!-- Select Button -->
+              <button 
+                *ngIf="!getSelectedBadge(child)"
+                (click)="selectChild(child); $event.stopPropagation()"
+                class="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition-colors">
+                <ion-icon name="eye-outline" class="text-sm"></ion-icon>
+              </button>
+
+              <!-- Edit Button -->
+              <button 
+                (click)="goToEditChild(child, $event)"
+                class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-colors">
+                <ion-icon name="create-outline" class="text-sm"></ion-icon>
+              </button>
+
+              <!-- Delete Button -->
+              <button 
+                (click)="confirmDelete(child, $event)"
+                class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors">
+                <ion-icon name="trash-outline" class="text-sm"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="mt-4 pt-4 border-t border-gray-200 grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p class="text-xs text-gray-500">Umur</p>
+              <p class="font-semibold text-gray-700">{{ child.ageInMonths }} bulan</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Gender</p>
+              <p class="font-semibold text-gray-700">{{ child.gender === 'male' ? 'Laki-laki' : 'Perempuan' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Terdaftar</p>
+              <p class="font-semibold text-gray-700">{{ child.createdAt | date:'dd/MM/yy' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div *ngIf="children.length > 0" class="mt-8 pt-6 border-t border-gray-200">
+        <h3 class="font-semibold text-gray-800 mb-4">Aksi Cepat</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button 
+            (click)="goToAddChild()"
+            class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="add-outline"></ion-icon>
+            <span class="font-medium">Tambah Anak</span>
+          </button>
+          
+          <button 
+            *ngIf="selectedChild"
+            (click)="goToChildDetail(selectedChild)"
+            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="eye-outline"></ion-icon>
+            <span class="font-medium">Lihat Detail</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-green-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Memuat data anak...</span>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-sm w-full">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full mx-auto flex items-center justify-center mb-4">
+          <ion-icon name="trash-outline" class="text-red-500 text-2xl"></ion-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Hapus Data Anak?</h3>
+        <p class="text-gray-600 mb-6">
+          Yakin ingin menghapus <strong>{{ childToDelete?.name }}</strong>? 
+          Semua data terkait akan ikut terhapus dan tidak dapat dikembalikan.
+        </p>
+        
+        <div class="flex space-x-3">
+          <button 
+            (click)="cancelDelete()"
+            class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-300 transition-colors">
+            Batal
+          </button>
+          <button 
+            (click)="deleteChild()"
+            class="flex-1 bg-red-500 text-white font-medium py-3 rounded-xl hover:bg-red-600 transition-colors">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>

@@ -1,0 +1,28 @@
+export const RouteData = {
+   DASHBOARD: 'dashboard',
+   ORDERTRACE: 'ordertrace',
+   CEK_TARIF: 'cektarif',
+   LAST_MILES: 'lastmiles',
+   CREATE_ORDER: 'createorder',
+   TROLLEY: 'trolley',
+   LIST_ORDER: 'listorder',
+   SUBMISSION: 'submission',
+   CREATE: 'create',
+   LIST_AGENT: 'listagent',
+   VALIDATOR: 'validator',
+   ORDER_LIST: 'daftar-pesanan',
+   BILL_RECAP: 'bill-recap',
+   BILL_ISSUANCE: 'penerbitan-tagihan',
+   ADDRESS_LIST: 'addresslist',
+   CLIENT_LIST: 'clientlist',
+   CLIENT_LIST_CHILDREN: {
+      FORM_STEP_1: 'form-step-1',
+      FORM_STEP_2: 'form-step-2',
+      DETAIL_CHILDREN: {
+         OVERVIEW: 'overview',
+         ACCOUNT_INFO: 'accountinfo',
+         ADDRESS_LIST: 'addresslist',
+      },
+      EDIT: 'edit',
+   },
+} as const;

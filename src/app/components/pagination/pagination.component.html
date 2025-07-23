@@ -1,0 +1,92 @@
+<!-- Default Variant -->
+<div *ngIf="variant === 'default'" class="flex lg:flex-row flex-col items-center justify-between text-sm text-text-subtler">
+  <div class="flex items-center bg-surface-default rounded-md border border-line-default">
+    <button
+      [disabled]="currentPage === 1"
+      (click)="onPageChange(currentPage - 1)"
+      class="p-2 rounded-lg text-text-subtler hover:bg-surface-sunken disabled:opacity-50 disabled:cursor-not-allowed lg:my-1 my-0"
+    >
+      <ic-cheveron-right/>
+    </button>
+
+    <div class="flex items-center gap-0 font-bold">
+      <ng-container *ngFor="let page of visiblePages">
+        <button
+          (click)="onPageChange(page)"
+          [class]="page === currentPage ? 
+            'lg:w-12 lg:h-12 w-10 h-12 flex items-center justify-center bg-bold-brand-default text-surface-default' :
+            'lg:w-12 lg:h-12 w-10 h-12 flex items-center justify-center hover:bg-surface-sunken'"
+        >
+          {{ page }}
+        </button>
+      </ng-container>
+    </div>
+    
+    <button
+      [disabled]="nextPage === null"
+      (click)="onPageChange(currentPage + 1)"
+      class="p-2 rounded-lg hover:bg-surface-sunken disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+    <ic-cheveron-right class="rotate-180 flex"/>
+    </button>
+  </div>
+</div>
+
+<!-- Simple Variant -->
+<div *ngIf="variant === 'simple'" class="flex items-center justify-center lg:gap-4 gap-1 text-text-subtler text-sm font-normal border-t">
+  <button
+    [disabled]="currentPage === 1"
+    (click)="onPageChange(currentPage - 1)"
+    class="font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <app-arrow-right></app-arrow-right>
+    Sebelumnya
+  </button>
+
+  <div class="flex items-center lg:space-x-1 space-x-0 font-bold">
+    <ng-container *ngFor="let page of visiblePages">
+      <button
+        (click)="onPageChange(page)"
+        [class]="page === currentPage ? 
+          'lg:px-3 px-1 py-3 border-t-2 border-bold-brand-default text-text-primary' :
+          'lg:px-3 px-1 py-3'"
+      >
+        {{ page }}
+      </button>
+    </ng-container>
+  </div>
+
+  <button
+    [disabled]="nextPage === null"
+    (click)="onPageChange(currentPage + 1)"
+    class="font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Selanjutnya
+    <app-arrow-right class="flex rotate-180"/>
+  </button>
+</div>
+
+<!-- Minimal Variant -->
+<div *ngIf="variant === 'minimal'" class="border-t flex items-center justify-between text-sm text-text-subtler">
+  <div class="flex items-center gap-2 py-2">
+    <button
+      [disabled]="currentPage === 1"
+      (click)="onPageChange(currentPage - 1)"
+      class="p-2 rounded border hover:bg-surface-sunken disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <ic-cheveron-right/>
+    </button>
+
+    <div class="w-12 h-10 flex items-center justify-center border rounded">
+      {{ currentPage }}
+    </div>
+
+    <button
+      [disabled]="nextPage === null"
+      (click)="onPageChange(currentPage + 1)"
+      class="p-2 rounded border hover:bg-surface-sunken disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <ic-cheveron-right class="rotate-180 flex"/>
+    </button>
+  </div>
+</div>

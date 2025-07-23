@@ -1,0 +1,318 @@
+<!-- pages/growth/growth-chart/growth-chart.page.html -->
+<ion-header class="ion-no-border">
+  <div class="bg-gradient-to-br from-indigo-500 to-blue-600 pt-12 pb-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 mb-4">
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="goBack()" 
+          class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="arrow-back-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <div>
+          <h1 class="text-white font-bold text-xl">Grafik Pertumbuhan</h1>
+          <p class="text-indigo-100 text-sm">{{ child?.name }} - {{ formatAge() }}</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button (click)="refreshData()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="refresh-outline" class="text-white text-xl"></ion-icon>
+        </button>
+        <button (click)="exportChart()" class="p-2 bg-white/20 backdrop-blur-sm rounded-full">
+          <ion-icon name="download-outline" class="text-white text-xl"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chart Summary -->
+    <div class="mx-6">
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p class="text-indigo-100 text-xs mb-1">Data Points</p>
+            <p class="text-white text-xl font-bold">{{ chartSummary.totalRecords }}</p>
+          </div>
+          <div>
+            <p class="text-indigo-100 text-xs mb-1">Nilai Terkini</p>
+            <p class="text-white text-xl font-bold">{{ chartSummary.latestValue }} {{ getMetricUnit() }}</p>
+          </div>
+          <div>
+            <p class="text-indigo-100 text-xs mb-1">Trend</p>
+            <div class="flex items-center justify-center space-x-1">
+              <span class="text-lg">{{ getTrendIcon() }}</span>
+              <span class="text-white text-sm font-medium">{{ getTrendText() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div class="relative -mt-6">
+    <div class="bg-white rounded-t-3xl shadow-xl min-h-screen px-6 pt-8">
+      
+      <!-- Chart Controls -->
+      <div class="mb-6">
+        <h3 class="font-semibold text-gray-800 mb-4">Pengaturan Grafik</h3>
+        
+        <!-- Metric Selection -->
+        <div class="mb-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">Pilih Metrik:</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button 
+              (click)="changeMetric('weight')"
+              class="p-3 rounded-lg border-2 transition-all text-center"
+              [class.border-blue-500]="selectedMetric === 'weight'"
+              [class.bg-blue-50]="selectedMetric === 'weight'"
+              [class.border-gray-200]="selectedMetric !== 'weight'">
+              <ion-icon name="scale-outline" 
+                       class="text-xl mb-1"
+                       [class.text-blue-600]="selectedMetric === 'weight'"
+                       [class.text-gray-400]="selectedMetric !== 'weight'"></ion-icon>
+              <p class="text-xs font-medium"
+                 [class.text-blue-700]="selectedMetric === 'weight'"
+                 [class.text-gray-600]="selectedMetric !== 'weight'">
+                Berat
+              </p>
+            </button>
+            
+            <button 
+              (click)="changeMetric('height')"
+              class="p-3 rounded-lg border-2 transition-all text-center"
+              [class.border-blue-500]="selectedMetric === 'height'"
+              [class.bg-blue-50]="selectedMetric === 'height'"
+              [class.border-gray-200]="selectedMetric !== 'height'">
+              <ion-icon name="resize-outline" 
+                       class="text-xl mb-1"
+                       [class.text-blue-600]="selectedMetric === 'height'"
+                       [class.text-gray-400]="selectedMetric !== 'height'"></ion-icon>
+              <p class="text-xs font-medium"
+                 [class.text-blue-700]="selectedMetric === 'height'"
+                 [class.text-gray-600]="selectedMetric !== 'height'">
+                Tinggi
+              </p>
+            </button>
+            
+            <button 
+              (click)="changeMetric('bmi')"
+              class="p-3 rounded-lg border-2 transition-all text-center"
+              [class.border-blue-500]="selectedMetric === 'bmi'"
+              [class.bg-blue-50]="selectedMetric === 'bmi'"
+              [class.border-gray-200]="selectedMetric !== 'bmi'">
+              <ion-icon name="analytics-outline" 
+                       class="text-xl mb-1"
+                       [class.text-blue-600]="selectedMetric === 'bmi'"
+                       [class.text-gray-400]="selectedMetric !== 'bmi'"></ion-icon>
+              <p class="text-xs font-medium"
+                 [class.text-blue-700]="selectedMetric === 'bmi'"
+                 [class.text-gray-600]="selectedMetric !== 'bmi'">
+                BMI
+              </p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Period Selection -->
+        <div class="mb-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">Periode Waktu:</p>
+          <div class="grid grid-cols-4 gap-2">
+            <button 
+              (click)="changePeriod('3m')"
+              class="py-2 px-3 rounded-lg border-2 transition-all text-center"
+              [class.border-indigo-500]="selectedPeriod === '3m'"
+              [class.bg-indigo-50]="selectedPeriod === '3m'"
+              [class.text-indigo-700]="selectedPeriod === '3m'"
+              [class.border-gray-200]="selectedPeriod !== '3m'"
+              [class.text-gray-600]="selectedPeriod !== '3m'">
+              <p class="text-xs font-medium">3 Bulan</p>
+            </button>
+            
+            <button 
+              (click)="changePeriod('6m')"
+              class="py-2 px-3 rounded-lg border-2 transition-all text-center"
+              [class.border-indigo-500]="selectedPeriod === '6m'"
+              [class.bg-indigo-50]="selectedPeriod === '6m'"
+              [class.text-indigo-700]="selectedPeriod === '6m'"
+              [class.border-gray-200]="selectedPeriod !== '6m'"
+              [class.text-gray-600]="selectedPeriod !== '6m'">
+              <p class="text-xs font-medium">6 Bulan</p>
+            </button>
+            
+            <button 
+              (click)="changePeriod('1y')"
+              class="py-2 px-3 rounded-lg border-2 transition-all text-center"
+              [class.border-indigo-500]="selectedPeriod === '1y'"
+              [class.bg-indigo-50]="selectedPeriod === '1y'"
+              [class.text-indigo-700]="selectedPeriod === '1y'"
+              [class.border-gray-200]="selectedPeriod !== '1y'"
+              [class.text-gray-600]="selectedPeriod !== '1y'">
+              <p class="text-xs font-medium">1 Tahun</p>
+            </button>
+            
+            <button 
+              (click)="changePeriod('all')"
+              class="py-2 px-3 rounded-lg border-2 transition-all text-center"
+              [class.border-indigo-500]="selectedPeriod === 'all'"
+              [class.bg-indigo-50]="selectedPeriod === 'all'"
+              [class.text-indigo-700]="selectedPeriod === 'all'"
+              [class.border-gray-200]="selectedPeriod !== 'all'"
+              [class.text-gray-600]="selectedPeriod !== 'all'">
+              <p class="text-xs font-medium">Semua</p>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Container -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-800">{{ getMetricTitle() }}</h3>
+          <span class="text-sm text-gray-500">{{ getPeriodText() }}</span>
+        </div>
+        
+        <!-- Mock Chart Display -->
+        <div #chartContainer class="mb-4">
+          <!-- Chart will be rendered here -->
+        </div>
+
+        <!-- Chart Controls -->
+        <div class="flex items-center justify-between">
+          <button 
+            (click)="toggleTrendLine()"
+            class="flex items-center space-x-2 text-sm"
+            [class.text-blue-600]="showTrendLine"
+            [class.text-gray-500]="!showTrendLine">
+            <input type="checkbox" [checked]="showTrendLine" class="rounded">
+            <span>Tampilkan garis trend</span>
+          </button>
+          
+          <button 
+            (click)="exportChart()"
+            class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800">
+            <ion-icon name="download-outline"></ion-icon>
+            <span>Export</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chart Statistics -->
+      <div class="mb-8" *ngIf="chartSummary.totalRecords > 1">
+        <h3 class="font-semibold text-gray-800 mb-4">Statistik Periode</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">Perubahan</p>
+                <p class="font-bold text-lg" [ngClass]="getTrendColor()">
+                  {{ chartSummary.changeValue > 0 ? '+' : '' }}{{ chartSummary.changeValue.toFixed(1) }} {{ getMetricUnit() }}
+                </p>
+              </div>
+              <div class="text-2xl">{{ getTrendIcon() }}</div>
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">Persentase</p>
+                <p class="font-bold text-lg" [ngClass]="getTrendColor()">
+                  {{ chartSummary.changePercent > 0 ? '+' : '' }}{{ chartSummary.changePercent.toFixed(1) }}%
+                </p>
+              </div>
+              <div class="text-2xl">📊</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="chartSummary.totalRecords === 0" class="text-center py-16">
+        <div class="w-24 h-24 bg-indigo-100 rounded-full mx-auto flex items-center justify-center mb-6">
+          <ion-icon name="stats-chart-outline" class="text-indigo-500 text-4xl"></ion-icon>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Data Grafik</h3>
+        <p class="text-gray-500 mb-8 max-w-sm mx-auto">
+          Tambahkan catatan pertumbuhan {{ child?.name }} untuk melihat grafik perkembangan
+        </p>
+        <button 
+          (click)="goToAddRecord()"
+          class="btn-primary">
+          <ion-icon name="add-outline" class="mr-2"></ion-icon>
+          Tambah Catatan Pertumbuhan
+        </button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div *ngIf="chartSummary.totalRecords > 0" class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Aksi Cepat</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <button 
+            (click)="goToAddRecord()"
+            class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="add-outline"></ion-icon>
+            <span class="font-medium">Tambah Data</span>
+          </button>
+          
+          <button 
+            (click)="goToRecordsList()"
+            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-xl flex items-center justify-center space-x-2 hover:shadow-lg transition-all">
+            <ion-icon name="eye-outline"></ion-icon>
+            <span class="font-medium">Lihat Semua</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chart Insights -->
+      <div *ngIf="chartSummary.totalRecords > 2" class="mb-8">
+        <h3 class="font-semibold text-gray-800 mb-4">Wawasan Pertumbuhan</h3>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div class="flex items-start space-x-3">
+            <ion-icon name="analytics-outline" class="text-blue-600 text-xl mt-0.5"></ion-icon>
+            <div>
+              <h4 class="font-medium text-blue-800 mb-1">Analisis Trend</h4>
+              <p class="text-blue-700 text-sm" *ngIf="selectedMetric === 'weight'">
+                Berat badan {{ child?.name }} menunjukkan trend {{ getTrendText().toLowerCase() }} 
+                dalam {{ getPeriodText().toLowerCase() }}. 
+                <span *ngIf="chartSummary.trend === 'increasing'">Ini adalah tanda pertumbuhan yang baik!</span>
+                <span *ngIf="chartSummary.trend === 'stable'">Pertumbuhan stabil, pantau terus perkembangannya.</span>
+              </p>
+              <p class="text-blue-700 text-sm" *ngIf="selectedMetric === 'height'">
+                Tinggi badan {{ child?.name }} menunjukkan trend {{ getTrendText().toLowerCase() }} 
+                dalam {{ getPeriodText().toLowerCase() }}.
+                <span *ngIf="chartSummary.trend === 'increasing'">Pertumbuhan tinggi badan sangat baik!</span>
+              </p>
+              <p class="text-blue-700 text-sm" *ngIf="selectedMetric === 'bmi'">
+                BMI {{ child?.name }} menunjukkan trend {{ getTrendText().toLowerCase() }} 
+                dalam {{ getPeriodText().toLowerCase() }}.
+                <span *ngIf="chartSummary.trend === 'stable'">BMI stabil menunjukkan pertumbuhan proporsional.</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pb-8"></div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
+      <div class="animate-spin rounded-full h-6 w-6 border-2 border-indigo-500 border-t-transparent"></div>
+      <span class="text-gray-700 font-medium">Memuat grafik pertumbuhan...</span>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+</ion-content>
